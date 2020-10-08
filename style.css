@@ -1,0 +1,12 @@
+body {
+	margin: 0;
+	position: fixed;
+	/* prevent overscroll bounce*/
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior: none;
+}
+canvas {
+	width: 100vw;
+	height: 100vh;
+	display: block;
+}
