@@ -47,25 +47,11 @@ export class Polygon {
 	}
 
 	draw(perspMatrix) {
-		this.gl.frontFace(this.twisting);
-		webglUtils.setBuffersAndAttributes(
-			this.gl,
-			this.attribSetters,
-			this.bufferInfo
-		);
-
-		const matrixUniform = {
-			u_matrix: m4.multiply(perspMatrix, this.transformationsMatrix),
-		};
-
-		webglUtils.setUniforms(this.uniformSetters, matrixUniform);
-
-		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		webglUtils.drawBufferInfo(this.gl, this.bufferInfo);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		this.drawOnly(m4.multiply(perspMatrix, this.transformationsMatrix));
 	}
 
 	drawOnly(matrix) {
+		this.gl.frontFace(this.twisting);
 		const matrixUniform = {
 			u_matrix: matrix,
 		};
