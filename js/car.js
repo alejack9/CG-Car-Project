@@ -90,10 +90,6 @@ export class Car {
 		}
 		if (Math.abs((this.sterzo - 10 ** -2) / 10 ** -2) <= 0) this.sterzo = 0;
 
-		// 	Math.abs((this.vx - 10 ** -3) / 10 ** -3),
-		// 	Math.abs((this.vy - 10 ** -3) / 10 ** -3)
-		// );
-
 		this.px += this.vx;
 		this.py += this.vy;
 		this.pz += this.vz;
@@ -105,11 +101,11 @@ export class Car {
 			this.chassis.rotation[1] = degToRad(this.facing);
 
 			this.wheels.front.forEach((wheel) => {
-				wheel.rotation[2] = degToRad(this.mozzoA);
+				wheel.rotation[2] = -degToRad(this.mozzoA);
 				wheel.rotation[1] = degToRad(this.sterzo);
 			});
 			this.wheels.back.forEach((wheel) => {
-				wheel.rotation[2] = degToRad(this.mozzoA);
+				wheel.rotation[2] = -degToRad(this.mozzoA);
 			});
 		}
 	}
