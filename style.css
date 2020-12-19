@@ -1,12 +1,26 @@
 body {
-	margin: 0;
-	position: fixed;
-	/* prevent overscroll bounce*/
-	-webkit-overflow-scrolling: touch;
-	overscroll-behavior: none;
+    margin: 0;
+    position: fixed;
+    /* prevent overscroll bounce*/
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
 }
 canvas {
-	width: 100vw;
-	height: 100vh;
-	display: block;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+
+#abs {
+    position: fixed;
+    z-index: 9;
+    top: 10px;
+    left: 10px;
+}
+
+#text {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
 }
