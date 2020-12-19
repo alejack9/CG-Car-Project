@@ -11,8 +11,9 @@ const FRAME_MIN_TIME =
 
 export class Scene {
     /** @param {WebGLRenderingContext} gl */
-    constructor(gl) {
+    constructor(gl, textCtx) {
         this.gl = gl;
+        this.textCtx = textCtx;
     }
 
     async load() {
@@ -51,6 +52,21 @@ export class Scene {
         this.fieldOfViewRadians = degToRad(45);
     }
 
+    async _load() {
+        console.log(this.currentCar);
+
+        this.car = await getVehicle(
+            this.gl,
+            this.setters,
+            this.cars[this.currentCar]
+        );
+
+        const cameraTarget = [0, 0, 0];
+        const cameraSherical = [15, degToRad(25), degToRad(90)];
+        this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
+        this.fieldOfViewRadians = degToRad(45);
+    }
+
     begin(maxPixelRatio = false) {
         console.log("Beginning scene");
 
@@ -61,15 +77,14 @@ export class Scene {
         let then = 0;
         const loop = (now) => {
             now *= 0.001;
-            if (now - then < FRAME_MIN_TIME) {
+            this.delta = now - then;
+            if (this.delta < FRAME_MIN_TIME) {
                 this.update();
                 this.nextFrameHandle = requestAnimationFrame(loop);
                 return;
             }
-            this.delta = now - then;
             then = now;
-            const fps = 1 / this.delta;
-            document.title = fps.toFixed(2);
+            document.title = (1 / this.delta).toFixed(2);
 
             this.update();
 
@@ -94,6 +109,24 @@ export class Scene {
         this.gl.clearColor(...this.backgroundColor, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
+        this.textCtx.clearRect(
+            0,
+            0,
+            this.textCtx.canvas.width,
+            this.textCtx.canvas.height
+        );
+        const fontSize = 25,
+            textSpace = 250;
+        this.textCtx.font = `${fontSize}px serif`;
+        const message = "Hello world\nthis is a test\ndoes it work?";
+        message.split("\n").forEach((row, i) => {
+            this.textCtx.fillText(
+                row,
+                this.textCtx.canvas.width - textSpace,
+                fontSize + i * fontSize,
+                textSpace
+            );
+        });
         this.gl.useProgram(this.program);
 
         const sharedUniform = {
@@ -118,6 +151,16 @@ export class Scene {
         AddEvent(window, "resize", this._onWindowResize);
         AddEvent(window, "keydown", this._keydown);
         AddEvent(window, "keyup", this._keyup);
+
+        document.getElementById("x").onchange = (event) => {
+            this.L[0] = parseFloat(document.getElementById("x").value);
+        };
+        document.getElementById("y").onchange = (event) => {
+            this.L[1] = parseFloat(document.getElementById("y").value);
+        };
+        document.getElementById("z").onchange = (event) => {
+            this.L[2] = parseFloat(document.getElementById("z").value);
+        };
     }
 
     _fingersStart = (event) => {
@@ -189,6 +232,16 @@ export class Scene {
         if (event.key.toLowerCase() === " ") this.car.key[5] = false;
         if (event.key.toLowerCase() === "1") this.camera.lockD();
         if (event.key.toLowerCase() === "0") this.camera.lockCamera();
+        if (event.key.toLowerCase() === "arrowleft") {
+            this.currentCar =
+                (this.currentCar === 0 ? this.cars.length : this.currentCar) -
+                1;
+            this._load();
+        }
+        if (event.key.toLowerCase() === "arrowright") {
+            this.currentCar = (this.currentCar + 1) % this.cars.length;
+            this._load();
+        }
     };
     _onWindowResize = () => {
         // even if the official web fundamentals guide discourage this implementation (moving this code to the render funciton),
@@ -197,6 +250,7 @@ export class Scene {
             this.gl.canvas,
             this.pixelRatio !== 1
         );
+        webglUtils.resizeCanvasToDisplaySize(this.textCtx.canvas);
 
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
