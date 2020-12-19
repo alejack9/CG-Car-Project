@@ -43,16 +43,16 @@ export class Vehicle {
         this.toDraw = true;
     }
 
-    draw(perspMatrix) {
+    draw() {
         this.gl.frontFace(this.gl.CCW);
-        let baseMatrix = m4.translate(perspMatrix, ...this.chassis.translation);
-        baseMatrix = m4.yRotate(baseMatrix, this.chassis.rotation[1]);
-        baseMatrix = m4.zRotate(baseMatrix, this.chassis.rotation[2]);
-        baseMatrix = m4.xRotate(baseMatrix, this.chassis.rotation[0]);
 
-        this.chassis.drawOnly(m4.scale(baseMatrix, ...this.chassis.scale));
-        this.wheels.front.forEach((w) => w.draw(baseMatrix));
-        this.wheels.back.forEach((w) => w.draw(baseMatrix));
+        this.chassis.forEach((chass) => chass.draw());
+
+        const baseMatrix = this.chassis[0].transformationsMatrix;
+
+        this.wheels.front.forEach((w) => w.drawBasedOnMatrix(baseMatrix));
+        this.suspensionsEdges.forEach((w) => w.drawBasedOnMatrix(baseMatrix));
+        this.wheels.back.forEach((w) => w.drawBasedOnMatrix(baseMatrix));
     }
 
     doStep(delta) {
