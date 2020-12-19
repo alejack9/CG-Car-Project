@@ -1,0 +1,32 @@
+{
+    "objName": "v4/formula1-sep_v4.obj",
+    "mtlName": "v4/formula1-sep_v4.mtl",
+    "chassis": {
+        "name": "Formula_1",
+        "transforms": {}
+    },
+    "front_wheel_sx": {
+        "name": "wheel_a_sx_Formula_1.002",
+        "transforms": {
+            "translation": [-3.0678, 0.6579, 1.7087]
+        }
+    },
+    "front_wheel_dx": {
+        "name": "wheel_a_dx_Formula_1.001",
+        "transforms": {
+            "translation": [-3.0678, 0.6579, -1.7087]
+        }
+    },
+    "back_wheel_sx": {
+        "name": "wheel_p_sx_Formula_1.004",
+        "transforms": {
+            "translation": [3.9285, 0.65496, 1.6903]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "wheel_p_dx_Formula_1.003",
+        "transforms": {
+            "translation": [3.9285, 0.65497, -1.6903]
+        }
+    }
+}

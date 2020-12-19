@@ -1,0 +1,28 @@
+{
+    "objName": "motor.obj",
+    "mtlName": "motor.mtl",
+    "chassis": {
+        "name": "chassis_Circle.002",
+        "transforms": {
+        }
+    },
+    "front_wheel_dx": {
+        "name": "frontWheel_Cylinder.007",
+        "transforms": {
+            "translation": [-2.4257, 1.1798, -0.019973],
+            "rotationCenter": [0.8442, 1.8829, 0]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "back_wheel_Cylinder.027",
+        "transforms": {
+            "translation": [2.5466, 1.2099, 0.00136]
+        }
+    },
+    "sus_edge_sx": {
+        "name": "a_Cylinder.012",
+        "transforms": {
+            "translation": [-1.5815, 3.0627, 0]
+        }
+    }
+}

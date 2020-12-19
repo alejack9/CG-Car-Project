@@ -1,0 +1,8 @@
+{
+    "objName": "v1/formula1-sep.obj",
+    "mtlName": "v1/formula1-sep.mtl",
+    "chassis": {
+        "name": "Formula_1",
+        "transforms": {}
+    }
+}

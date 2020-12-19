@@ -1,0 +1,28 @@
+{
+    "objName": "bike.obj",
+    "mtlName": "bike.mtl",
+    "chassis": {
+        "name": "chassis_Torus.002",
+        "transforms": {
+        }
+    },
+    "front_wheel_dx": {
+        "name": "wheel_a_Torus.005",
+        "transforms": {
+            "translation": [-1.3971, 0.5721, -0.016836],
+            "rotationCenter": [0.79581, 1.262, 0]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "wheel_p_Torus.006",
+        "transforms": {
+            "translation": [1.302,0.57349, 0.000597]
+        }
+    },
+    "sus_edge_sx": {
+        "name": "a_Torus.004",
+        "transforms": {
+            "translation": [-0.60129,1.8341,-0.016936]
+        }
+    }
+}

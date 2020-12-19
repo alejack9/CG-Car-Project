@@ -1,0 +1,12 @@
+{
+    "paths": [
+        "/data/vehicles/cars/simple_red/simple_red.json",
+        "/data/vehicles/cars/hotwheels/hotwheels.json",
+        "/data/vehicles/cars/lego/lego.json",
+        "/data/vehicles/cars/formula1/formula1.v5.json",
+        "/data/vehicles/cars/aston_martin_f1/aston_martin_f1.json",
+        "/data/vehicles/bikes/bike/bike.json",
+        "/data/vehicles/bikes/motor/motor.json",
+        "/data/vehicles/bikes/motor1/motor.json"
+    ]
+}

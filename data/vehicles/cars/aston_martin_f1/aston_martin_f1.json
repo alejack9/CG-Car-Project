@@ -1,0 +1,34 @@
+{
+    "objName": "aston_martin1.obj",
+    "mtlName": "aston_martin.mtl",
+    "chassis": {
+        "name": "chassis_Cylinder.004",
+        "transforms": {
+            "scale": [0.4,0.4,0.4]
+        }
+    },
+    "front_wheel_sx": {
+        "name": "front_wheels_sx_Circle.003",
+        "transforms": {
+            "translation": [-4.6993, 2.123, 4.6779]
+        }
+    },
+    "front_wheel_dx": {
+        "name": "front_wheels_dx_Circle.008",
+        "transforms": {
+            "translation": [-4.6995, 2.123, -4.7427]
+        }
+    },
+    "back_wheel_sx": {
+        "name": "back_wheels_sx_Circle.009",
+        "transforms": {
+            "translation": [13.653, 2.2536, 4.6671]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "back_wheels_dx_Circle.007",
+        "transforms": {
+            "translation": [13.652, 2.2536, -4.6848]
+        }
+    }
+}

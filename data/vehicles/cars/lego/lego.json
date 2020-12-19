@@ -1,0 +1,32 @@
+{
+    "objName": "legoA1.obj",
+    "mtlName": "legoA1.mtl",
+    "chassis": {
+        "name": "chassis_LEGO_CAR_A1",
+        "transforms": {}
+    },
+    "front_wheel_sx": {
+        "name": "wheel_a_sx_LEGO_CAR_A1.006",
+        "transforms": {
+            "translation": [-1.0453, 0.35137, 0.79692]
+        }
+    },
+    "front_wheel_dx": {
+        "name": "wheel_a_dx_LEGO_CAR_A1.002",
+        "transforms": {
+            "translation": [-1.0453, 0.35137, -0.80098]
+        }
+    },
+    "back_wheel_sx": {
+        "name": "wheel_b_sx_LEGO_CAR_A1.007",
+        "transforms": {
+            "translation": [1.5426, 0.35137, 0.81275]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "wheel_b_dx_LEGO_CAR_A1.001",
+        "transforms": {
+            "translation": [1.5426, 0.35137, -0.80096]
+        }
+    }
+}

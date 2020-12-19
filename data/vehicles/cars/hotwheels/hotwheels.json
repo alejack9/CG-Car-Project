@@ -1,0 +1,32 @@
+{
+    "objName": "hotwheels.obj",
+    "mtlName": "hotwheels.mtl",
+    "chassis": {
+        "name": "chassis_10600_RC__Car_SG_v2_L3",
+        "transforms": {}
+    },
+    "front_wheel_sx": {
+        "name": "wheel_a_sx_10600_RC__Car_SG_v2_L3.001",
+        "transforms": {
+            "translation": [-1.8186, 0.6675, -1.954]
+        }
+    },
+    "front_wheel_dx": {
+        "name": "wheel_a_dx_10600_RC__Car_SG_v2_L3.002",
+        "transforms": {
+            "translation": [-1.8186, 0.6675, 1.9675]
+        }
+    },
+    "back_wheel_sx": {
+        "name": "wheel_p_sx_10600_RC__Car_SG_v2_L3.004",
+        "transforms": {
+            "translation": [1.9196, 0.66975, -1.9588]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "wheel_p_dx_10600_RC__Car_SG_v2_L3.003",
+        "transforms": {
+            "translation": [1.9196, 0.66975, 1.9607]
+        }
+    }
+}
