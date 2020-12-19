@@ -188,7 +188,6 @@ export class ObjLoader {
     static async parseMTL(mtlUrl) {
         function parseMapArgs(unparsedArgs) {
             // ignore options
-            // // TODO: handle options
             return unparsedArgs;
         }
 

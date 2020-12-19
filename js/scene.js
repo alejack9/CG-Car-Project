@@ -11,9 +11,10 @@ const FRAME_MIN_TIME =
 
 export class Scene {
     /** @param {WebGLRenderingContext} gl */
-    constructor(gl, textCtx) {
+    constructor(gl, textManager) {
         this.gl = gl;
-        this.textCtx = textCtx;
+        webglUtils.resizeCanvasToDisplaySize(textManager.ctx.canvas);
+        this.textManager = textManager;
     }
 
     async load() {
@@ -50,6 +51,7 @@ export class Scene {
         const cameraSherical = [15, degToRad(40), degToRad(90)];
         this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
         this.fieldOfViewRadians = degToRad(45);
+        this.cameraInc = [0, 0];
     }
 
     async _load() {
@@ -100,6 +102,10 @@ export class Scene {
 
     update() {
         if (this.car.moving) this.camera.updateCamera(this.delta);
+        if (this.cameraInc[0])
+            this.camera.increaseTarget(0, this.cameraInc[0] * 4 * this.delta);
+        if (this.cameraInc[1])
+            this.camera.increaseTarget(2, this.cameraInc[1] * 4 * this.delta);
         this.camera.translation = this.car.chassis[0].translation;
         this.camera.rotation = this.car.chassis[0].rotation[1];
         this.car.doStep(this.delta);
@@ -109,24 +115,8 @@ export class Scene {
         this.gl.clearColor(...this.backgroundColor, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-        this.textCtx.clearRect(
-            0,
-            0,
-            this.textCtx.canvas.width,
-            this.textCtx.canvas.height
-        );
-        const fontSize = 25,
-            textSpace = 250;
-        this.textCtx.font = `${fontSize}px serif`;
-        const message = "Hello world\nthis is a test\ndoes it work?";
-        message.split("\n").forEach((row, i) => {
-            this.textCtx.fillText(
-                row,
-                this.textCtx.canvas.width - textSpace,
-                fontSize + i * fontSize,
-                textSpace
-            );
-        });
+        this.textManager.render();
+
         this.gl.useProgram(this.program);
 
         const sharedUniform = {
@@ -152,13 +142,13 @@ export class Scene {
         AddEvent(window, "keydown", this._keydown);
         AddEvent(window, "keyup", this._keyup);
 
-        document.getElementById("x").onchange = (event) => {
+        document.getElementById("x").onchange = (_) => {
             this.L[0] = parseFloat(document.getElementById("x").value);
         };
-        document.getElementById("y").onchange = (event) => {
+        document.getElementById("y").onchange = (_) => {
             this.L[1] = parseFloat(document.getElementById("y").value);
         };
-        document.getElementById("z").onchange = (event) => {
+        document.getElementById("z").onchange = (_) => {
             this.L[2] = parseFloat(document.getElementById("z").value);
         };
     }
@@ -223,6 +213,10 @@ export class Scene {
         if (event.key.toLowerCase() === "s") this.car.key[2] = true;
         if (event.key.toLowerCase() === "d") this.car.key[3] = true;
         if (event.key.toLowerCase() === " ") this.car.key[5] = true;
+        if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = -1;
+        if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 1;
+        if (event.key.toLowerCase() === "arrowleft") this.cameraInc[1] = 1;
+        if (event.key.toLowerCase() === "arrowright") this.cameraInc[1] = -1;
     };
     _keyup = (event) => {
         if (event.key.toLowerCase() === "w") this.car.key[0] = false;
@@ -230,17 +224,24 @@ export class Scene {
         if (event.key.toLowerCase() === "s") this.car.key[2] = false;
         if (event.key.toLowerCase() === "d") this.car.key[3] = false;
         if (event.key.toLowerCase() === " ") this.car.key[5] = false;
+        if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = 0;
+        if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 0;
+        if (event.key.toLowerCase() === "arrowleft") this.cameraInc[1] = 0;
+        if (event.key.toLowerCase() === "arrowright") this.cameraInc[1] = 0;
         if (event.key.toLowerCase() === "1") this.camera.lockD();
         if (event.key.toLowerCase() === "0") this.camera.lockCamera();
-        if (event.key.toLowerCase() === "arrowleft") {
+        if (event.key.toLowerCase() === "o") {
             this.currentCar =
                 (this.currentCar === 0 ? this.cars.length : this.currentCar) -
                 1;
             this._load();
         }
-        if (event.key.toLowerCase() === "arrowright") {
+        if (event.key.toLowerCase() === "p") {
             this.currentCar = (this.currentCar + 1) % this.cars.length;
             this._load();
+        }
+        if (event.key.toLowerCase() === "r") {
+            this.camera.target = [0, 0, 0];
         }
     };
     _onWindowResize = () => {
@@ -250,7 +251,7 @@ export class Scene {
             this.gl.canvas,
             this.pixelRatio !== 1
         );
-        webglUtils.resizeCanvasToDisplaySize(this.textCtx.canvas);
+        webglUtils.resizeCanvasToDisplaySize(this.textManager.ctx.canvas);
 
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
