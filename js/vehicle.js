@@ -2,15 +2,22 @@ import * as m4 from "./libs/m4.js";
 import { degToRad } from "./utils/spherical-coordinates.js";
 import { Polygon } from "./polygon.js";
 
-export class Car {
+export class Vehicle {
     /**
      *
      * @param {WebGLRenderingContext} gl
-     * @param {Polygon} chassis
+     * @param {Polygon[]} chassis
      * @param {Polygon[]} frontWheels
      * @param {Polygon[]} backWheels
+     * @param {Polygon[]} suspensionsEdges
      */
-    constructor(gl, chassis, frontWheels, backWheels) {
+    constructor(
+        gl,
+        chassis = [],
+        frontWheels = [],
+        backWheels = [],
+        suspensionsEdges = []
+    ) {
         this.gl = gl;
         this.px = this.py = this.pz = this.facing = 0; // posizione e orientamento
         this.mozzoA = this.mozzoP = this.sterzo = 0; // stato
@@ -19,7 +26,7 @@ export class Car {
         this.key = [];
         this.velSterzo = 3.4; // A
         this.velRitornoSterzo = 0.93; // B, sterzo massimo = A*B / (1-B)
-        this.accMax = 0.0055;
+        this.accMax = 0.01;
         this.attritoX = 0.975; // piccolo attrito sulla Z (nel senso di rotolamento delle ruote)
         this.attritoZ = 0.8; // grande attrito sulla X (per non fare slittare la macchina)
         this.attritoY = 1.0; // attrito nullo sulla y
@@ -32,6 +39,7 @@ export class Car {
         this.wheels = {};
         this.wheels.front = frontWheels;
         this.wheels.back = backWheels;
+        this.suspensionsEdges = suspensionsEdges;
         this.toDraw = true;
     }
 
@@ -96,17 +104,21 @@ export class Car {
 
         this.toDraw = this.vx !== 0 || this.vy !== 0 || this.sterzo !== 0;
         if (this.toDraw) {
-            this.chassis.translation[0] += this.vx;
-            this.chassis.translation[2] += this.vz;
-            this.chassis.rotation[1] = degToRad(this.facing);
-
+            this.chassis.forEach((chas) => {
+                chas.translation[0] += this.vx;
+                chas.translation[2] += this.vz;
+                chas.rotation[1] = degToRad(this.facing);
+            }, this);
             this.wheels.front.forEach((wheel) => {
                 wheel.rotation[2] = -degToRad(this.mozzoA);
                 wheel.rotation[1] = degToRad(this.sterzo);
             });
-            this.wheels.back.forEach((wheel) => {
-                wheel.rotation[2] = -degToRad(this.mozzoA);
-            });
+            this.suspensionsEdges.forEach(
+                (susEdge) => (susEdge.rotation[1] = degToRad(this.sterzo))
+            );
+            this.wheels.back.forEach(
+                (wheel) => (wheel.rotation[2] = -degToRad(this.mozzoA))
+            );
         }
     }
 
