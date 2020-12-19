@@ -3,7 +3,7 @@ import * as webglUtils from "./libs/webgl-utils.js";
 import { degToRad, toCartesian } from "./utils/spherical-coordinates.js";
 import * as m4 from "./libs/m4.js";
 import { AddEvent } from "./utils/input.js";
-import { getPolygons as getObjects } from "./objs-factory.js";
+import { getObjs, getVehicle } from "./objs-factory.js";
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_MIN_TIME =
@@ -17,19 +17,36 @@ export class Scene {
 
     async load() {
         console.log("Loading scene");
+
+        this.cars = JSON.parse(
+            await (await fetch("/data/vehicles/vehicles.json")).text()
+        ).paths;
+        this.currentCar = 0;
+
         this.program = await webglUtils.createProgramFromFiles(this.gl, [
-            "./shaders/shader.vs.glsl",
-            "./shaders/shader.fs.glsl",
+            "./shaders/phong.vs.glsl",
+            "./shaders/phong.fs.glsl",
         ]);
 
-        this.backgroundColor = [0.08, 0.08, 0.08];
-        const objs = getObjects(this.gl, this.program);
-        this.polygons = objs.polygons;
-        this.car = objs.car;
+        this.backgroundColor = [0.28, 0.28, 0.28];
 
-        const cameraSherical = [10, degToRad(20), degToRad(90)];
+        this.setters = [
+            webglUtils.createAttributeSetters(this.gl, this.program),
+            webglUtils.createUniformSetters(this.gl, this.program),
+        ];
+
+        this.L = [-1.0, 3.0, 5.0];
+
+        this.car = await getVehicle(
+            this.gl,
+            this.setters,
+            this.cars[this.currentCar]
+        );
+
+        this.polygons = await getObjs(this.gl, this.setters);
+
         const cameraTarget = [0, 0, 0];
-
+        const cameraSherical = [15, degToRad(40), degToRad(90)];
         this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
         this.fieldOfViewRadians = degToRad(45);
     }
@@ -68,8 +85,8 @@ export class Scene {
 
     update() {
         if (this.car.moving) this.camera.updateCamera(this.delta);
-        this.camera.translation = this.car.chassis.translation;
-        this.camera.rotation = this.car.chassis.rotation[1];
+        this.camera.translation = this.car.chassis[0].translation;
+        this.camera.rotation = this.car.chassis[0].rotation[1];
         this.car.doStep(this.delta);
     }
 
@@ -79,11 +96,15 @@ export class Scene {
 
         this.gl.useProgram(this.program);
 
-        const perspMatrix = m4.multiply(
-            this.perspectiveMatrix,
-            this.camera.viewMatrix
-        );
-        for (let polygon of this.polygons) polygon.draw(perspMatrix);
+        const sharedUniform = {
+            L: m4.normalize(this.L),
+            u_viewWorldPosition: this.camera.cartesianPosition,
+            u_perspection: this.perspectiveMatrix,
+            u_view: this.camera.viewMatrix,
+        };
+        webglUtils.setUniforms(this.setters[1], sharedUniform);
+        this.polygons.forEach((p) => p.draw());
+        this.car.draw();
     }
 
     _addEvents() {
@@ -137,15 +158,13 @@ export class Scene {
     _updatePosition = (event) => {
         if (!this.clicked) return;
         const actual = [event.clientX, event.clientY];
-        const deltas = actual.map((e, i) => e - this.start[i]);
-        let deltaStep = degToRad(
+        const deltas = [actual[0] - this.start[0], actual[1] - this.start[1]];
+        this.camera.theta -= degToRad(
             (180 * deltas[0]) / (this.gl.canvas.width * this.pixelRatio)
         );
-        this.camera.theta -= deltaStep;
-        deltaStep = degToRad(
+        this.camera.phi -= degToRad(
             (90 * deltas[1]) / (this.gl.canvas.height * this.pixelRatio)
         );
-        this.camera.phi -= deltaStep;
         this.start = actual;
     };
     _stopDrag = () => {
