@@ -1,0 +1,46 @@
+{
+    "objName": "v6/formula1.obj",
+    "mtlName": "v6/formula1.mtl",
+    "chassis": {
+        "name": "Formula_1",
+        "transforms": {}
+    },
+    "front_wheel_sx": {
+        "name": "wheel_a_sx_Formula_1.003",
+        "transforms": {
+            "translation": [-3.66804, 0.78636, 2.09904],
+            "rotationCenter": [-0.17268, 0.0405, -0.5291]
+        }
+    },
+    "front_wheel_dx": {
+        "name": "wheel_a_dx_Formula_1.002",
+        "transforms": {
+            "translation": [-3.66804, 0.78636, -2.09904],
+            "rotationCenter": [-0.17268, 0.0405, 0.5291]
+        }
+    },
+    "back_wheel_sx": {
+        "name": "wheel_p_sx_Formula_1.001",
+        "transforms": {
+            "translation": [4.7142, 0.785964, 2.02836]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "wheel_p_dx_Formula_1.004",
+        "transforms": {
+            "translation": [4.7142, 0.785964, -2.02836]
+        }
+    },
+    "sus_edge_sx": {
+        "name": "sus_edge_sx_Formula_1.006",
+        "transforms": {
+            "translation": [-3.84072, 0.82686, 1.46412]
+        }
+    },
+    "sus_edge_dx": {
+        "name": "sus_edge_dx_Formula_1.005",
+        "transforms": {
+            "translation": [-3.84072, 0.82686, -1.46412]
+        }
+    }
+}

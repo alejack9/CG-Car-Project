@@ -1,6 +1,6 @@
 {
-    "objName": "motor.obj",
-    "mtlName": "motor.mtl",
+    "objName": "motor.new.obj",
+    "mtlName": "motor.new.mtl",
     "chassis": {
         "name": "chassis_Circle.002",
         "transforms": {

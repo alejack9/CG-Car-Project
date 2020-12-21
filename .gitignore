@@ -1,3 +1,7 @@
 .vscode
 !data/**/*.json
-data/**/*
+data/**/*.obj
+data/**/*.mtl
+data/**/*.png
+data/**/*.jpg
+data/**/*.jpeg

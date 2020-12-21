@@ -1,6 +1,6 @@
 {
-    "objName": "motor.obj",
-    "mtlName": "motor.mtl",
+    "objName": "motor.new.obj",
+    "mtlName": "motor.new.mtl",
     "chassis": {
         "name": "chassis_Cube.001",
         "transforms": {
@@ -9,20 +9,20 @@
     "front_wheel_dx": {
         "name": "front_wheel_Cylinder.019",
         "transforms": {
-            "translation": [-2.43536, 1.15789, 0],
-            "rotationCenter": [1.13751, 2.27562, -0.007]
+            "translation": [-2.191824, 1.042101, 0],
+            "rotationCenter": [1.023759, 2.048058, 0]
         }
     },
     "back_wheel_dx": {
         "name": "back_wheel_Cylinder.024",
         "transforms": {
-            "translation": [2.42523, 1.14201, 0]
+            "translation": [2.182707, 1.027809, 0]
         }
     },
     "sus_edge_sx": {
         "name": "a_Cylinder.026",
         "transforms": {
-            "translation": [-1.29785, 3.43351, -0.007]
+            "translation": [-1.168065, 3.090159, 0]
         }
     }
 }

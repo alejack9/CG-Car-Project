@@ -1,34 +1,32 @@
 {
-    "objName": "simple_red.obj",
-    "mtlName": "simple_red.mtl",
+    "objName": "simple_red1.obj",
+    "mtlName": "simple_red1.mtl",
     "chassis": {
         "name": "chassis_11675_Car_v1_L3",
-        "transforms": {
-            "scale": [2, 2, 2]
-        }
+        "transforms": {}
     },
     "front_wheel_sx": {
         "name": "wheel_a_sx_11675_Car_v1_L3.001",
         "transforms": {
-            "translation": [-1.2653, 0.38398, -0.79451]
+            "translation": [-2.5306, 0.76796, -1.58902]
         }
     },
     "front_wheel_dx": {
         "name": "wheel_a_dx_11675_Car_v1_L3.009",
         "transforms": {
-            "translation": [-1.2648, 0.38398, 0.79546]
+            "translation": [-2.5296, 0.76796, 1.59092]
         }
     },
     "back_wheel_sx": {
         "name": "wheel_b_sx_11675_Car_v1_L3.003",
         "transforms": {
-            "translation": [1.1548, 0.38383, -0.8955]
+            "translation": [2.3096, 0.76796, -1.791]
         }
     },
     "back_wheel_dx": {
         "name": "wheel_b_dx_11675_Car_v1_L3.007",
         "transforms": {
-            "translation": [1.1548, 0.38398, 0.89296]
+            "translation": [2.3096, 0.76796, 1.78592]
         }
     }
 }
