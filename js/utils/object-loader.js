@@ -27,21 +27,22 @@ export class ObjLoader {
 
         // load texture for materials
         for (const material of Object.values(materials)) {
-            Object.entries(material)
-                .filter(([key]) => key.endsWith("Map"))
-                .forEach(([key, filename]) => {
-                    let texture = textures[filename];
-                    if (!texture) {
-                        texture = makeTexture(
-                            gl,
-                            getUrlHref(filename, baseHref),
-                            undefined,
-                            singleTextureLoadCb
-                        );
-                        textures[filename] = texture;
-                    }
-                    material[key] = texture;
-                });
+            const mapEntries = Object.entries(material).filter(([key]) =>
+                key.endsWith("Map")
+            );
+            for (const [key, filename] of mapEntries) {
+                let texture = textures[filename];
+                if (!texture) {
+                    texture = await makeTexture(
+                        gl,
+                        getUrlHref(filename, baseHref),
+                        undefined,
+                        singleTextureLoadCb
+                    );
+                    textures[filename] = texture;
+                }
+                material[key] = texture;
+            }
         }
 
         return obj.geometries.map(({ object, material, data }) => {

@@ -12,7 +12,7 @@ const groupArray = (xs, key, transform) =>
 export async function getVehicle(
     gl,
     setters,
-    baseJsonPath = "/data/vehicles/cars/formula1/formula1.v5.json"
+    baseJsonPath = "/data/vehicles/cars/formula1/formula1.json"
 ) {
     const jsonUrl = getUrl(baseJsonPath);
 
@@ -37,12 +37,6 @@ export async function getVehicle(
             };
         }
     );
-
-    // carFields.sus_edge_sx.transforms.translation.forEach((s, i) =>
-    //     console.log(s - carFields.front_wheel_dx.transforms.translation[i])
-    // );
-
-    // console.log(groups);
 
     const car = new Vehicle(
         gl,
@@ -145,7 +139,7 @@ export async function getObjs(gl, setters) {
     const mtlUrlHref = getUrlHref("/data/objs/road1.mtl");
 
     const groups = await ObjLoader.parse(gl, objUrlHref, mtlUrlHref);
-    console.log(groups);
+    // console.log(groups);
 
     return [
         new Polygon(

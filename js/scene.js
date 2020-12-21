@@ -37,11 +37,11 @@ export class Scene {
             webglUtils.createUniformSetters(this.gl, this.program),
         ];
 
-        this.L = [];
-
-        this.L[0] = parseFloat(document.getElementById("x")?.value ?? -1);
-        this.L[1] = parseFloat(document.getElementById("y")?.value ?? 3);
-        this.L[2] = parseFloat(document.getElementById("z")?.value ?? 5);
+        this.L = [
+            parseFloat(document.getElementById("x")?.value ?? -1),
+            parseFloat(document.getElementById("y")?.value ?? 3),
+            parseFloat(document.getElementById("z")?.value ?? 5),
+        ];
 
         this.polygons = await getObjs(this.gl, this.setters);
 
@@ -88,13 +88,10 @@ export class Scene {
             document.title = (1 / this.delta).toFixed(2);
 
             this.update();
-
             this.render();
-
             this.nextFrameHandle = requestAnimationFrame(loop);
         };
-
-        this._onWindowResize();
+        this._resize();
 
         this.nextFrameHandle = requestAnimationFrame(loop);
     }
@@ -103,8 +100,6 @@ export class Scene {
         if (this.car.moving) this.camera.updateCamera(this.delta);
         if (this.cameraInc[0])
             this.camera.increaseTarget(0, this.cameraInc[0] * 4 * this.delta);
-        if (this.cameraInc[1])
-            this.camera.increaseTarget(2, this.cameraInc[1] * 4 * this.delta);
         this.camera.translation = this.car.chassis[0].translation;
         this.camera.rotation = this.car.chassis[0].rotation[1];
         this.car.doStep(this.delta);
@@ -140,24 +135,26 @@ export class Scene {
                 "touchstart",
                 "touchmove",
                 "touchend",
-            ].forEach((ev) => RemoveEvent(this.gl.canvas, ev));
-            ["resize", "keydown", "keyup"].forEach((ev) =>
-                RemoveEvent(window, ev)
-            );
+                "resize",
+                "keydown",
+                "keyup",
+            ].forEach((ev) => RemoveEvent(window, ev));
         }
     }
 
     _addEvents() {
-        AddEvent(this.gl.canvas, "mousedown", this._setupPosition);
-        AddEvent(this.gl.canvas, "mousemove", this._updatePosition);
-        AddEvent(this.gl.canvas, "mouseup", this._stopDrag);
-        AddEvent(this.gl.canvas, "wheel", this._pinch);
-        AddEvent(this.gl.canvas, "touchstart", this._fingersStart);
-        AddEvent(this.gl.canvas, "touchmove", this._fingersMove);
-        AddEvent(this.gl.canvas, "touchend", this._stopDrag);
-        AddEvent(window, "resize", this._onWindowResize);
-        AddEvent(window, "keydown", this._keydown);
-        AddEvent(window, "keyup", this._keyup);
+        [
+            "mousedown",
+            "mousemove",
+            "mouseup",
+            "wheel",
+            "touchstart",
+            "touchmove",
+            "resize",
+            "keydown",
+            "keyup",
+        ].forEach((ev) => AddEvent(window, ev, this[`_${ev}`]));
+        AddEvent(window, "touchend", this._mouseup);
 
         if (document.getElementById("x"))
             document.getElementById("x").oninput = (_) => {
@@ -182,31 +179,31 @@ export class Scene {
             };
     }
 
-    _fingersStart = (event) => {
+    _touchstart = (event) => {
         if (event.touches.length === 1) {
             [event.clientX, event.clientY] = [
                 event.touches[0].clientX,
                 event.touches[0].clientY,
             ];
-            return this._setupPosition(event);
+            return this._mousedown(event);
         }
         this.dist = Math.hypot(
             event.touches[1].pageX - event.touches[0].pageX,
             event.touches[1].pageY - event.touches[0].pageY
         );
     };
-    _setupPosition = (event) => {
+    _mousedown = (event) => {
         this.clicked = true;
         this.start = [event.clientX, event.clientY];
         this.updateCamera = false;
     };
-    _fingersMove = (event) => {
+    _touchmove = (event) => {
         if (event.touches.length === 1) {
             [event.clientX, event.clientY] = [
                 event.touches[0].clientX,
                 event.touches[0].clientY,
             ];
-            return this._updatePosition(event);
+            return this._mousemove(event);
         }
         const actual = Math.hypot(
             event.touches[1].pageX - event.touches[0].pageX,
@@ -214,10 +211,10 @@ export class Scene {
         );
         if (this.dist > actual) event.deltaY = 1;
         else event.deltaY = -1;
-        this._pinch(event, 0.1);
+        this._wheel(event, 0.1);
         this.dist = actual;
     };
-    _updatePosition = (event) => {
+    _mousemove = (event) => {
         if (!this.clicked) return;
         const actual = [event.clientX, event.clientY];
         const deltas = [actual[0] - this.start[0], actual[1] - this.start[1]];
@@ -229,10 +226,10 @@ export class Scene {
         );
         this.start = actual;
     };
-    _stopDrag = () => {
+    _mouseup = () => {
         this.clicked = false;
     };
-    _pinch = (event, step = 0.5) => {
+    _wheel = (event, step = 0.5) => {
         this.camera.d += (event.deltaY > 0 ? step : -step) * this.pixelRatio;
         this.updateCamera = false;
     };
@@ -254,21 +251,19 @@ export class Scene {
         if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = 0;
         if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 0;
         if (event.key.toLowerCase() === "0") this.camera.lockCamera();
-        if (event.key.toLowerCase() === "o") {
+        if (event.key.toLowerCase() === "q") {
             this.currentCar =
                 (this.currentCar === 0 ? this.cars.length : this.currentCar) -
                 1;
             this._load();
         }
-        if (event.key.toLowerCase() === "p") {
+        if (event.key.toLowerCase() === "e") {
             this.currentCar = (this.currentCar + 1) % this.cars.length;
             this._load();
         }
-        if (event.key.toLowerCase() === "r") {
-            this.camera.target = [0, 0, 0];
-        }
+        if (event.key.toLowerCase() === "r") this.camera.target = [0, 0, 0];
     };
-    _onWindowResize = () => {
+    _resize = () => {
         // even if the official web fundamentals guide discourage this implementation (moving this code to the render funciton),
         // in our case this is a major performance improvement without any bad side effects.
         webglUtils.resizeCanvasToDisplaySize(
