@@ -17,10 +17,13 @@ canvas {
     top: 10px;
     left: 10px;
 }
+#abs * {
+    z-index: 9;
+}
 
 #text {
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 10;
+    z-index: 8;
 }

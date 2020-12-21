@@ -109,11 +109,8 @@ export class Camera {
         return this._phi;
     }
 
-    lockD() {
-        this.startPosition[0] = this.d;
-    }
     lockCamera() {
-        this.lockD();
+        this.startPosition[0] = this.d;
         this.startPosition[1] = this.theta;
         this.startPosition[2] = this.phi;
     }

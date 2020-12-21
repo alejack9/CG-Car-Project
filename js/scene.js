@@ -2,7 +2,7 @@ import { Camera } from "./camera.js";
 import * as webglUtils from "./libs/webgl-utils.js";
 import { degToRad, toCartesian } from "./utils/spherical-coordinates.js";
 import * as m4 from "./libs/m4.js";
-import { AddEvent } from "./utils/input.js";
+import { AddEvent, RemoveEvent } from "./utils/input.js";
 import { getObjs, getVehicle } from "./objs-factory.js";
 
 const FRAMES_PER_SECOND = 60;
@@ -37,36 +37,35 @@ export class Scene {
             webglUtils.createUniformSetters(this.gl, this.program),
         ];
 
-        this.L = [-1.0, 3.0, 5.0];
+        this.L = [];
 
-        this.car = await getVehicle(
-            this.gl,
-            this.setters,
-            this.cars[this.currentCar]
-        );
+        this.L[0] = parseFloat(document.getElementById("x")?.value ?? -1);
+        this.L[1] = parseFloat(document.getElementById("y")?.value ?? 3);
+        this.L[2] = parseFloat(document.getElementById("z")?.value ?? 5);
 
         this.polygons = await getObjs(this.gl, this.setters);
 
-        const cameraTarget = [0, 0, 0];
-        const cameraSherical = [15, degToRad(40), degToRad(90)];
-        this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
-        this.fieldOfViewRadians = degToRad(45);
-        this.cameraInc = [0, 0];
+        await this._load();
     }
 
     async _load() {
         console.log(this.currentCar);
 
+        this.disableinput(true);
+
         this.car = await getVehicle(
             this.gl,
             this.setters,
             this.cars[this.currentCar]
         );
 
+        this.disableinput(false);
+
         const cameraTarget = [0, 0, 0];
-        const cameraSherical = [15, degToRad(25), degToRad(90)];
+        const cameraSherical = [20, degToRad(25), degToRad(90)];
         this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
         this.fieldOfViewRadians = degToRad(45);
+        this.cameraInc = [0, 0];
     }
 
     begin(maxPixelRatio = false) {
@@ -130,27 +129,57 @@ export class Scene {
         this.car.draw();
     }
 
+    disableinput(bool) {
+        if (!bool) this._addEvents();
+        else {
+            [
+                "mousedown",
+                "mousemove",
+                "mouseup",
+                "wheel",
+                "touchstart",
+                "touchmove",
+                "touchend",
+            ].forEach((ev) => RemoveEvent(this.gl.canvas, ev));
+            ["resize", "keydown", "keyup"].forEach((ev) =>
+                RemoveEvent(window, ev)
+            );
+        }
+    }
+
     _addEvents() {
-        AddEvent(window, "mousedown", this._setupPosition);
-        AddEvent(window, "mousemove", this._updatePosition);
-        AddEvent(window, "mouseup", this._stopDrag);
-        AddEvent(window, "wheel", this._pinch);
-        AddEvent(window, "touchstart", this._fingersStart);
-        AddEvent(window, "touchmove", this._fingersMove);
-        AddEvent(window, "touchend", this._stopDrag);
+        AddEvent(this.gl.canvas, "mousedown", this._setupPosition);
+        AddEvent(this.gl.canvas, "mousemove", this._updatePosition);
+        AddEvent(this.gl.canvas, "mouseup", this._stopDrag);
+        AddEvent(this.gl.canvas, "wheel", this._pinch);
+        AddEvent(this.gl.canvas, "touchstart", this._fingersStart);
+        AddEvent(this.gl.canvas, "touchmove", this._fingersMove);
+        AddEvent(this.gl.canvas, "touchend", this._stopDrag);
         AddEvent(window, "resize", this._onWindowResize);
         AddEvent(window, "keydown", this._keydown);
         AddEvent(window, "keyup", this._keyup);
 
-        document.getElementById("x").onchange = (_) => {
-            this.L[0] = parseFloat(document.getElementById("x").value);
-        };
-        document.getElementById("y").onchange = (_) => {
-            this.L[1] = parseFloat(document.getElementById("y").value);
-        };
-        document.getElementById("z").onchange = (_) => {
-            this.L[2] = parseFloat(document.getElementById("z").value);
-        };
+        if (document.getElementById("x"))
+            document.getElementById("x").oninput = (_) => {
+                document.getElementById(
+                    "xl"
+                ).innerHTML = document.getElementById("x").value;
+                this.L[0] = parseFloat(document.getElementById("x").value);
+            };
+        if (document.getElementById("y"))
+            document.getElementById("y").oninput = (_) => {
+                document.getElementById(
+                    "yl"
+                ).innerHTML = document.getElementById("y").value;
+                this.L[1] = parseFloat(document.getElementById("y").value);
+            };
+        if (document.getElementById("z"))
+            document.getElementById("z").oninput = (_) => {
+                document.getElementById(
+                    "zl"
+                ).innerHTML = document.getElementById("z").value;
+                this.L[2] = parseFloat(document.getElementById("z").value);
+            };
     }
 
     _fingersStart = (event) => {
@@ -215,8 +244,6 @@ export class Scene {
         if (event.key.toLowerCase() === " ") this.car.key[5] = true;
         if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = -1;
         if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 1;
-        if (event.key.toLowerCase() === "arrowleft") this.cameraInc[1] = 1;
-        if (event.key.toLowerCase() === "arrowright") this.cameraInc[1] = -1;
     };
     _keyup = (event) => {
         if (event.key.toLowerCase() === "w") this.car.key[0] = false;
@@ -226,9 +253,6 @@ export class Scene {
         if (event.key.toLowerCase() === " ") this.car.key[5] = false;
         if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = 0;
         if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 0;
-        if (event.key.toLowerCase() === "arrowleft") this.cameraInc[1] = 0;
-        if (event.key.toLowerCase() === "arrowright") this.cameraInc[1] = 0;
-        if (event.key.toLowerCase() === "1") this.camera.lockD();
         if (event.key.toLowerCase() === "0") this.camera.lockCamera();
         if (event.key.toLowerCase() === "o") {
             this.currentCar =

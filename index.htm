@@ -3,7 +3,6 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>Document</title>
-		<!-- <meta name="mobile-web-app-capable" content="yes" /> -->
 		<meta
 			name="viewport"
 			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -16,9 +15,9 @@
 		<canvas id="gl-surface">Not supported</canvas>
 		<canvas id="text">Not supported</canvas>
 		<div id="abs">
-			<input type="number" name="x" id="x" value="-1" step="0.1"><br/>
-			<input type="number" name="y" id="y" value="3" step="0.1" ><br/>
-			<input type="number" name="z" id="z" value="5" step="0.1" >
+			<input type="range" name="x" id="x" min=-10 max=10 value="0" step="0.1"><label for="x" id="xl">0</label><br/>
+			<input type="range" name="y" id="y" min=0 max=10 value="3" step="0.1" ><label for="y" id="yl">3</label><br/>
+			<input type="range" name="z" id="z" min=-10 max=10 value="0" step="0.1" ><label for="z" id="zl">0</label>
 		</div>
 	</body>
 </html>
