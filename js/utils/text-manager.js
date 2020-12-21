@@ -3,12 +3,12 @@ export class TextManager {
      *
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} fontSize
-     * @param {number} textAreaWidth
+     * @param {number} padding
      */
-    constructor(ctx, fontSize = 25, textAreaWidth = 250) {
+    constructor(ctx, fontSize = 25, padding = 20) {
         this.ctx = ctx;
         this.fontSize = fontSize;
-        this.textAreaWidth = textAreaWidth;
+        this.padding = padding;
         this._message = "Hello world\nthis is a test\ndoes it work?";
     }
 
@@ -21,9 +21,11 @@ export class TextManager {
             .forEach((row, i) =>
                 this.ctx.fillText(
                     row,
-                    this.ctx.canvas.width - this.textAreaWidth,
+                    this.ctx.canvas.width -
+                        this.ctx.measureText(row).width -
+                        this.padding,
                     this.fontSize + i * this.fontSize,
-                    this.textAreaWidth
+                    this.ctx.measureText(row).width + this.padding
                 )
             );
     }
