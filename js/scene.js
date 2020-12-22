@@ -4,13 +4,18 @@ import { degToRad, toCartesian } from "./utils/spherical-coordinates.js";
 import * as m4 from "./libs/m4.js";
 import { AddEvent, RemoveEvent } from "./utils/input.js";
 import { getObjs, getVehicle } from "./objs-factory.js";
+import { TextManager } from "./utils/text-manager.js";
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_MIN_TIME =
     ((1000 / 60) * (60 / FRAMES_PER_SECOND) - (1000 / 60) * 0.5) * 0.001;
 
 export class Scene {
-    /** @param {WebGLRenderingContext} gl */
+    /**
+     *
+     * @param {WebGLRenderingContext} gl
+     * @param {TextManager} textManager
+     */
     constructor(gl, textManager) {
         this.gl = gl;
         webglUtils.resizeCanvasToDisplaySize(textManager.ctx.canvas);
@@ -18,7 +23,8 @@ export class Scene {
     }
 
     async load() {
-        console.log("Loading scene");
+        this.textManager.loading = true;
+        this.textManager.render();
 
         this.cars = JSON.parse(
             await (await fetch("/data/vehicles/vehicles.json")).text()
@@ -49,23 +55,29 @@ export class Scene {
     }
 
     async _load() {
+        this.textManager.reset();
         console.log(this.currentCar);
 
         this.disableinput(true);
+        this.textManager.loading = true;
 
+        let doneTextures = 0;
+        const cb = (texturesCount) => {
+            if (texturesCount)
+                this.textManager.texturesLoadedMessage = `Loading Texture... ${++doneTextures} / ${texturesCount}`;
+            if (!texturesCount || doneTextures === texturesCount) {
+                this.textManager.done = true;
+                this.disableinput(false);
+            }
+        };
         this.car = await getVehicle(
             this.gl,
             this.setters,
-            this.cars[this.currentCar]
+            this.cars[this.currentCar],
+            cb
         );
 
-        this.disableinput(false);
-
-        const cameraTarget = [0, 0, 0];
-        const cameraSherical = [20, degToRad(25), degToRad(90)];
-        this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
-        this.fieldOfViewRadians = degToRad(45);
-        this.cameraInc = [0, 0];
+        this.resetCamera();
     }
 
     begin(maxPixelRatio = false) {
@@ -138,8 +150,17 @@ export class Scene {
                 "resize",
                 "keydown",
                 "keyup",
-            ].forEach((ev) => RemoveEvent(window, ev));
+            ].forEach((ev) => RemoveEvent(window, ev, this[`_${ev}`]));
+            RemoveEvent(window, "touchend", this._mouseup);
         }
+    }
+
+    resetCamera() {
+        const cameraTarget = [0, 0, 0];
+        const cameraSherical = [20, degToRad(25), degToRad(90)];
+        this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
+        this.fieldOfViewRadians = degToRad(45);
+        this.cameraInc = [0, 0];
     }
 
     _addEvents() {
@@ -261,7 +282,13 @@ export class Scene {
             this.currentCar = (this.currentCar + 1) % this.cars.length;
             this._load();
         }
-        if (event.key.toLowerCase() === "r") this.camera.target = [0, 0, 0];
+        if (event.key === "r") this.resetCamera();
+        if (event.key === "R") this.camera.target = [0, 0, 0];
+        const n = parseInt(event.key);
+        if (n >= 1 && n <= 8 && n - 1 !== this.currentCar) {
+            this.currentCar = n - 1;
+            this._load();
+        }
     };
     _resize = () => {
         // even if the official web fundamentals guide discourage this implementation (moving this code to the render funciton),

@@ -12,7 +12,8 @@ const groupArray = (xs, key, transform) =>
 export async function getVehicle(
     gl,
     setters,
-    baseJsonPath = "/data/vehicles/cars/formula1/formula1.json"
+    baseJsonPath = "/data/vehicles/cars/formula1/formula1.json",
+    cb
 ) {
     const jsonUrl = getUrl(baseJsonPath);
 
@@ -21,14 +22,9 @@ export async function getVehicle(
     const objUrlHref = getUrlHref(carFields.objName, jsonUrl);
     const mtlUrlHref = getUrlHref(carFields.mtlName, jsonUrl);
 
-    let done = 0;
+    const cb1 = () => cb(carFields.texturesCount);
     const groups = groupArray(
-        await ObjLoader.parse(
-            gl,
-            objUrlHref,
-            mtlUrlHref,
-            () => console.log(`loaded textures: ${++done}`) ///${toload}`)
-        ),
+        await ObjLoader.parse(gl, objUrlHref, mtlUrlHref, cb1),
         "object",
         (part) => {
             return {
@@ -130,7 +126,7 @@ export async function getVehicle(
             )
             .filter(Boolean)
     );
-
+    if (!carFields.texturesCount) cb();
     return car;
 }
 
@@ -139,7 +135,6 @@ export async function getObjs(gl, setters) {
     const mtlUrlHref = getUrlHref("/data/objs/road1.mtl");
 
     const groups = await ObjLoader.parse(gl, objUrlHref, mtlUrlHref);
-    // console.log(groups);
 
     return [
         new Polygon(

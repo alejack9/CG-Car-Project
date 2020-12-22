@@ -33,7 +33,7 @@ export class ObjLoader {
             for (const [key, filename] of mapEntries) {
                 let texture = textures[filename];
                 if (!texture) {
-                    texture = await makeTexture(
+                    texture = makeTexture(
                         gl,
                         getUrlHref(filename, baseHref),
                         undefined,
