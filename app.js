@@ -29,7 +29,29 @@ console.log(getVideoCardInfo());
 
     const gl = webglUtils.getWebGLContext(canvas);
 
-    const scene = new Scene(gl, new TextManager(ctx));
+    const scene = new Scene(
+        gl,
+        new TextManager(
+            ctx,
+            [
+                "Mouse Drag => Move Camera Around",
+                "Mouse Wheel => Go Closer/Far Aray",
+                "Arrow Up => Point Forward",
+                "Arrow Down => Point Backward",
+                "Space => Handbrake",
+                "WASD => Drive",
+                "0 => Lock Camera",
+                "Q/E => Previous/Next Vehicle",
+                "r => Reset Camera to Default",
+                "R => Reset Camera Target to Default",
+                "",
+                "",
+            ].join("\n"),
+            window.innerHeight / 50,
+            undefined,
+            window.innerWidth / 5.8
+        )
+    );
     await scene.load();
     scene.begin();
 })();

@@ -4,37 +4,62 @@ export class TextManager {
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} fontSize
      * @param {number} padding
+     * @param {number} maxWidth
      */
-    constructor(ctx, fontSize = 25, padding = 20) {
+    constructor(
+        ctx,
+        instructions = "",
+        fontSize = 25,
+        padding = 8,
+        maxWidth = 340
+    ) {
         this.ctx = ctx;
         this.fontSize = fontSize;
         this.padding = padding;
-        this._message = "Hello world\nthis is a test\ndoes it work?";
+        this.instructions = instructions + "\n";
+        this.maxWidth = maxWidth;
+        this.reset();
     }
 
     render() {
-        this.ctx.globalAlpha = 1;
+        const msg =
+            this.instructions +
+            this._loading +
+            this.texturesLoadedMessage +
+            this._done;
+        this.ctx.globalAlpha = 0.8;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.font = `${this.fontSize}px serif`;
-        this._message
-            .split("\n")
-            .forEach((row, i) =>
-                this.ctx.fillText(
-                    row,
-                    this.ctx.canvas.width -
-                        this.ctx.measureText(row).width -
-                        this.padding,
-                    this.fontSize + i * this.fontSize,
-                    this.ctx.measureText(row).width + this.padding
-                )
+        this.ctx.fillStyle = "#292826";
+        this.ctx.fillRect(
+            this.ctx.canvas.width - this.maxWidth - this.padding,
+            0,
+            this.ctx.canvas.width,
+            this.ctx.canvas.height
+        );
+        this.ctx.globalAlpha = 1;
+        msg.split("\n").forEach((row, i) => {
+            this.ctx.fillStyle = "#FCD253";
+            this.ctx.fillText(
+                row,
+                this.ctx.canvas.width - this.maxWidth + this.padding,
+                (i + 1) * this.fontSize,
+                this.maxWidth
             );
+        });
     }
 
-    get message() {
-        return this._message;
+    reset() {
+        this.texturesLoadedMessage = "";
+        this.loading = false;
+        this.done = false;
     }
 
-    set message(val) {
-        this._message = val;
+    set loading(v) {
+        this._loading = v ? "Loading...\n" : "";
+    }
+
+    set done(v) {
+        this._done = v ? "\nDone" : "";
     }
 }
