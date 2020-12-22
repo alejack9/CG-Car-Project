@@ -1,6 +1,7 @@
 {
     "objName": "aston_martin1.new.obj",
     "mtlName": "aston_martin1.new.mtl",
+    "texturesCount": 23,
     "chassis": {
         "name": "chassis_Cylinder.004",
         "transforms": {}

@@ -1,6 +1,7 @@
 {
     "objName": "motor.new.obj",
     "mtlName": "motor.new.mtl",
+    "texturesCount": 2,
     "chassis": {
         "name": "chassis_Circle.002",
         "transforms": {

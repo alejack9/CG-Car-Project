@@ -1,6 +1,7 @@
 {
     "objName": "simple_red1.obj",
     "mtlName": "simple_red1.mtl",
+    "texturesCount": 1,
     "chassis": {
         "name": "chassis_11675_Car_v1_L3",
         "transforms": {}

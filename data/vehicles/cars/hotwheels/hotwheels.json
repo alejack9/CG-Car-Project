@@ -1,6 +1,7 @@
 {
     "objName": "hotwheels1.obj",
     "mtlName": "hotwheels1.mtl",
+    "texturesCount": 1,
     "chassis": {
         "name": "chassis_10600_RC__Car_SG_v2_L3",
         "transforms": {}

@@ -1,6 +1,7 @@
 {
     "objName": "bike.new.obj",
     "mtlName": "bike.new.mtl",
+    "texturesCount": 1,
     "chassis": {
         "name": "chassis_Torus.002",
         "transforms": {
