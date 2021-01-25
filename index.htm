@@ -1,23 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Document</title>
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-		/>
-		<meta name="HandheldFriendly" content="true" />
-		<link rel="stylesheet" href="style.css" />
-		<script src="app.js" defer type="module"></script>
-	</head>
-	<body>
-		<canvas id="gl-surface">Not supported</canvas>
-		<canvas id="text">Not supported</canvas>
-		<div id="abs">
-			<input type="range" name="x" id="x" min=-10 max=10 value="0" step="0.1"><label for="x" id="xl">0</label><br/>
-			<input type="range" name="y" id="y" min=0 max=10 value="3" step="0.1" ><label for="y" id="yl">3</label><br/>
-			<input type="range" name="z" id="z" min=-10 max=10 value="0" step="0.1" ><label for="z" id="zl">0</label>
-		</div>
-	</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Document</title>
+        <meta
+            name="viewport"
+            content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta name="HandheldFriendly" content="true" />
+        <link rel="stylesheet" href="style.css" />
+        <script src="app.js" defer type="module"></script>
+    </head>
+    <body>
+        <canvas id="gl-surface"
+            >HTML5 Not supported, switch to a smarter browser:
+            <a href="https://www.google.com/chrome/">Click here!</a></canvas
+        >
+        <canvas id="text"></canvas>
+        
+        <div class="abs top right" style="max-width: 50%;">
+            <span id="hide" style="float: left; left: 0px">[-]</span>
+            <div class="hideable" style="display: flex; flex-flow: row wrap; justify-content: flex-end">
+                <table>
+                    <tr><td colspan=2 style="text-align: center;"><label>Light Position</label></td></tr>
+                    <tr>
+                        <td><label for="x" id="xl">0.0</label></td>
+                        <td>
+                            <input
+                                type="range"
+                                class="control"
+                                name="x"
+                                id="x"
+                                min="-100"
+                                max="100"
+                                value="0"
+                                step="1"
+                                disabled
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="y" id="yl">6.0</label></td>
+                        <td>
+                            <input
+                                type="range"
+                                class="control"
+                                name="y"
+                                id="y"
+                                min="0"
+                                max="50"
+                                value="6"
+                                step="0.5"
+                                disabled
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="z" id="zl">0.0</label></td>
+                        <td>
+                            <input
+                                type="range"
+                                class="control"
+                                name="z"
+                                id="z"
+                                min="-100"
+                                max="100"
+                                value="0"
+                                step="0.5"
+                                disabled
+                            />
+                        </td>
+                    </tr>
+                </table>
+                <div>
+                    <input type="checkbox" class='control' name="load_texture" id="load_texture" disabled>
+                    <label for="load_texture" id="load_texture_l">Vehicle<br />Textures</label>
+                </div>
+                <div>
+                    <input type="checkbox" class='control' name="load_bump" id="load_bump" disabled>
+                    <label for="load_bump" id="load_bump_l">Vehicle<br />Bump</label>
+                </div>
+                <div>
+                    <input type="checkbox" class='control' name="keep_textures" id="keep_textures" disabled>
+                    <label for="keep_textures" id="keep_textures_l">Save Textures When Loaded</label>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="abs bottom center touch-only"
+            style="display: flex; flex-flow: column wrap;"
+        >
+            <div
+                class="flex-row"
+            >
+                <div
+                    class="flex-row"
+                    style="
+                        width: 14%;
+                        align-items: flex-end;
+                        align-content: flex-end;
+                    "
+                >
+                    <img
+                        src="data/images/prev-vehicle.png"
+                        style="height: 38pt"
+                        class="control"
+                        id="prev"
+                    />
+                    <img
+                        src="data/images/next-vehicle.png"
+                        style="height: 38pt"
+                        class="control"
+                        id="next"
+                    />
+                </div>
+                <div
+                    class="flex-row"
+                    style="
+                        width: 21%;
+                        align-items: flex-end;
+                        align-content: flex-end;
+                    "
+                >
+                    <img
+                        src="data/images/third/lock.png"
+                        style="height: 38pt"
+                        class="control camera-buttons"
+                        id="lock"
+                    />
+                    <img
+                        src="data/images/third/restart.png"
+                        style="height: 38pt"
+                        class="control camera-buttons"
+                        id="restart"
+                    />
+                    <img
+                        src="data/images/third/camera.png"
+                        style="height: 38pt"
+                        class="control camera-buttons"
+                        id="camera"
+                    />
+                </div>
+            </div>
+            <div
+                class="flex-row"
+                style="justify-content: space-evenly;"
+            >
+                <span class="drive control" id="up"> ↑ </span>
+                <span class="drive control" id="down"> ↓ </span>
+                <span class="drive control" id="left"> ← </span>
+                <span class="drive control" id="right"> → </span>
+            </div>
+        </div>
+        <script type="text/javascript">
+            if (!("ontouchstart" in window))
+                for (const el of document.getElementsByClassName("touch-only"))
+                    el.style.display = "none";
+        </script>
+    </body>
 </html>

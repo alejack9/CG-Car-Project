@@ -1,7 +1,8 @@
 {
-    "objName": "v6/formula1.obj",
-    "mtlName": "v6/formula1.mtl",
-    "texturesCount": 2,
+    "objName": "formula1.obj",
+    "mtlName": "formula1.mtl",
+    "firstPersonCameraPosition": [2.25, 0, 0],
+    "firstPersonCameraTarget":[ 15, 180, 90 ],
     "chassis": {
         "name": "Formula_1",
         "transforms": {}

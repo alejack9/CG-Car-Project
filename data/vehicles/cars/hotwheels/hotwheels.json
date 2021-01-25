@@ -1,7 +1,8 @@
 {
     "objName": "hotwheels1.obj",
     "mtlName": "hotwheels1.mtl",
-    "texturesCount": 1,
+    "firstPersonCameraPosition": [3, -4.0312, 8.3610],
+    "firstPersonCameraTarget": [ 15, 180, 90 ],
     "chassis": {
         "name": "chassis_10600_RC__Car_SG_v2_L3",
         "transforms": {}

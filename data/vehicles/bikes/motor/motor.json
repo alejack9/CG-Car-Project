@@ -1,7 +1,8 @@
 {
     "objName": "motor.new.obj",
     "mtlName": "motor.new.mtl",
-    "texturesCount": 2,
+    "firstPersonCameraPosition": [4, 0, 0],
+    "firstPersonCameraTarget":[ 15, 180, 90 ],
     "chassis": {
         "name": "chassis_Circle.002",
         "transforms": {

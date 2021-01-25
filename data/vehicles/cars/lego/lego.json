@@ -1,6 +1,8 @@
 {
     "objName": "lego.obj",
     "mtlName": "lego.mtl",
+    "firstPersonCameraPosition": [3.25, 60, 20],
+    "firstPersonCameraTarget":[ 15, 180, 90 ],
     "chassis": {
         "name": "chassis_LEGO_CAR_A1",
         "transforms": {}

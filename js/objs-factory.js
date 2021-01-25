@@ -2,6 +2,8 @@ import { Polygon } from "./polygon.js";
 import { getUrl, getUrlHref } from "./utils/url.js";
 import { ObjLoader } from "./utils/object-loader.js";
 import { Vehicle } from "./vehicle.js";
+import { Coin } from "./coin.js";
+import { degToRad } from "./utils/spherical-coordinates.js";
 
 const groupArray = (xs, key, transform) =>
     xs.reduce((rv, x) => {
@@ -11,9 +13,13 @@ const groupArray = (xs, key, transform) =>
 
 export async function getVehicle(
     gl,
-    setters,
-    baseJsonPath = "/data/vehicles/cars/formula1/formula1.json",
-    cb
+    programInfo,
+    baseJsonPath,
+    loadTextures,
+    loadNormals,
+    objCb,
+    mtlCb,
+    textureCb
 ) {
     const jsonUrl = getUrl(baseJsonPath);
 
@@ -22,9 +28,18 @@ export async function getVehicle(
     const objUrlHref = getUrlHref(carFields.objName, jsonUrl);
     const mtlUrlHref = getUrlHref(carFields.mtlName, jsonUrl);
 
-    const cb1 = () => cb(carFields.texturesCount);
+    // group objects by object's name (one object could have multiple entries for different materials)
     const groups = groupArray(
-        await ObjLoader.parse(gl, objUrlHref, mtlUrlHref, cb1),
+        await ObjLoader.parse(
+            gl,
+            objUrlHref,
+            mtlUrlHref,
+            loadTextures,
+            loadNormals,
+            objCb,
+            mtlCb,
+            textureCb
+        ),
         "object",
         (part) => {
             return {
@@ -35,14 +50,23 @@ export async function getVehicle(
     );
 
     const car = new Vehicle(
-        gl,
+        [
+            carFields.firstPersonCameraPosition[0],
+            degToRad(carFields.firstPersonCameraPosition[1]),
+            degToRad(carFields.firstPersonCameraPosition[2]),
+        ],
+        [
+            carFields.firstPersonCameraTarget[0],
+            degToRad(carFields.firstPersonCameraTarget[1]),
+            degToRad(carFields.firstPersonCameraTarget[2]),
+        ],
+        // create a polygon for each subpart of vehicle's part
         groups[carFields.chassis.name].map(
             (part) =>
                 new Polygon(
                     gl,
                     part.arrays,
-                    setters[0],
-                    setters[1],
+                    programInfo,
                     carFields.chassis.transforms,
                     part.material
                 )
@@ -53,8 +77,7 @@ export async function getVehicle(
                     new Polygon(
                         gl,
                         part.arrays,
-                        setters[0],
-                        setters[1],
+                        programInfo,
                         carFields.front_wheel_dx.transforms,
                         part.material
                     )
@@ -65,8 +88,7 @@ export async function getVehicle(
                         new Polygon(
                             gl,
                             part.arrays,
-                            setters[0],
-                            setters[1],
+                            programInfo,
                             carFields.front_wheel_sx.transforms,
                             part.material
                         )
@@ -79,8 +101,7 @@ export async function getVehicle(
                     new Polygon(
                         gl,
                         part.arrays,
-                        setters[0],
-                        setters[1],
+                        programInfo,
                         carFields.back_wheel_dx.transforms,
                         part.material
                     )
@@ -91,22 +112,20 @@ export async function getVehicle(
                         new Polygon(
                             gl,
                             part.arrays,
-                            setters[0],
-                            setters[1],
+                            programInfo,
                             carFields.back_wheel_sx.transforms,
                             part.material
                         )
                 )
             )
-            .filter((s) => !!s),
+            .filter(Boolean),
         groups[carFields.sus_edge_sx?.name]
             ?.map(
                 (part) =>
                     new Polygon(
                         gl,
                         part.arrays,
-                        setters[0],
-                        setters[1],
+                        programInfo,
                         carFields.sus_edge_sx.transforms,
                         part.material
                     )
@@ -117,8 +136,7 @@ export async function getVehicle(
                         new Polygon(
                             gl,
                             part.arrays,
-                            setters[0],
-                            setters[1],
+                            programInfo,
                             carFields.sus_edge_dx.transforms,
                             part.material
                         )
@@ -126,24 +144,44 @@ export async function getVehicle(
             )
             .filter(Boolean)
     );
-    if (!carFields.texturesCount) cb();
+    car.loadedNormals = loadNormals;
+    car.loadedTextures = loadTextures;
     return car;
 }
 
-export async function getObjs(gl, setters) {
-    const objUrlHref = getUrlHref("/data/objs/road1.obj");
-    const mtlUrlHref = getUrlHref("/data/objs/road1.mtl");
+export async function getObjs(gl, programInfo) {
+    const objUrlHref = getUrlHref("data/objs/ground.obj");
+    const mtlUrlHref = getUrlHref("data/objs/ground.mtl");
+    const objUrlHref1 = getUrlHref("data/objs/coin/coin.new1.obj");
+    const mtlUrlHref1 = getUrlHref("data/objs/coin/coin.new1.mtl");
 
-    const groups = await ObjLoader.parse(gl, objUrlHref, mtlUrlHref);
+    const groundGroups = await ObjLoader.parse(
+        gl,
+        objUrlHref,
+        mtlUrlHref,
+        true,
+        true
+    );
+    const coinGroups = await ObjLoader.parse(
+        gl,
+        objUrlHref1,
+        mtlUrlHref1,
+        true,
+        true
+    );
+    const coin = new Coin(gl, programInfo, coinGroups);
 
-    return [
-        new Polygon(
-            gl,
-            groups[0].arrays,
-            setters[0],
-            setters[1],
-            { scale: [100.0, 1.0, 100.0] },
-            groups[0].material
-        ),
-    ];
+    return {
+        polygons: [
+            new Polygon(
+                gl,
+                groundGroups[0].arrays,
+                programInfo,
+                { scale: [100.0, 1.0, 100.0] },
+                groundGroups[0].material
+            ),
+            coin,
+        ],
+        coin,
+    };
 }

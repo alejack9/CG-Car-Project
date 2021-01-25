@@ -1,7 +1,8 @@
 {
     "objName": "bike.new.obj",
     "mtlName": "bike.new.mtl",
-    "texturesCount": 1,
+    "firstPersonCameraPosition": [4.25, 0, 0],
+    "firstPersonCameraTarget":[ 15, 180, 101 ],
     "chassis": {
         "name": "chassis_Torus.002",
         "transforms": {

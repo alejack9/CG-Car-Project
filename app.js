@@ -1,57 +1,34 @@
-import * as webglUtils from "./js/libs/webgl-utils.js";
+import { getWebGLContext } from "./js/libs/webgl-utils.js";
 import { Scene } from "./js/scene.js";
-import { TextManager } from "./js/utils/text-manager.js";
-
-function getVideoCardInfo() {
-    const gl = document.createElement("canvas").getContext("webgl");
-    if (!gl) {
-        return {
-            error: "no webgl",
-        };
-    }
-    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    return debugInfo
-        ? {
-              vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-              renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-          }
-        : {
-              error: "no WEBGL_debug_renderer_info",
-          };
-}
-
-console.log(getVideoCardInfo());
+import { TextManager } from "./js/text-manager.js";
 
 (async function boot() {
     const canvas = document.getElementById("gl-surface");
     const textCanvas = document.getElementById("text");
+
     var ctx = textCanvas.getContext("2d");
+    const gl = getWebGLContext(canvas);
 
-    const gl = webglUtils.getWebGLContext(canvas);
-
-    const scene = new Scene(
-        gl,
-        new TextManager(
-            ctx,
-            [
-                "Mouse Drag => Move Camera Around",
-                "Mouse Wheel => Go Closer/Far Aray",
-                "Arrow Up => Point Forward",
-                "Arrow Down => Point Backward",
-                "Space => Handbrake",
-                "WASD => Drive",
-                "0 => Lock Camera",
-                "Q/E => Previous/Next Vehicle",
-                "r => Reset Camera to Default",
-                "R => Reset Camera Target to Default",
-                "",
-                "",
-            ].join("\n"),
-            window.innerHeight / 50,
-            undefined,
-            window.innerWidth / 5.8
-        )
+    console.log(
+        `vendor: ${gl.getParameter(
+            gl.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL
+        )}\n`,
+        `renderer: ${gl.getParameter(
+            gl.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL
+        )}`
     );
-    await scene.load();
-    scene.begin();
+
+    const mobile = "ontouchstart" in window;
+
+    TextManager.load(
+        ctx,
+        await (
+            await fetch(mobile ? "instructions.mobile.txt" : "instructions.txt")
+        ).text(),
+        1,
+        mobile
+    );
+
+    await Scene.load(gl, mobile);
+    Scene.begin();
 })();

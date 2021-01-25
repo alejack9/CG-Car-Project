@@ -98,10 +98,10 @@ async function createShaderFromFile(gl, url, opt_shaderType) {
  * @param {!WebGLRenderingContext} gl The WebGL Context.
  * @param {string[]} urls Array of urls of the file for the shaders. The first is assumed to be the
  *        vertex shader, the second the fragment shader.
- * @return {!Promise<WebGLShader>} The shader.
+ * @return {!Promise<WebGLShader>} The program.
  * @memberOf module:webgl-utils
  */
-export async function createProgramFromFiles(gl, urls) {
+async function createProgramFromFiles(gl, urls) {
     // create shader
     const vs = await createShaderFromFile(gl, urls[0], gl.VERTEX_SHADER);
     const fs = await createShaderFromFile(gl, urls[1], gl.FRAGMENT_SHADER);
@@ -125,24 +125,35 @@ export async function createProgramFromFiles(gl, urls) {
     return program;
 }
 
+export async function createProgramInfo(gl, urls) {
+    const program = await createProgramFromFiles(gl, urls);
+    if (!program) return null;
+
+    return {
+        program,
+        uniformSetters: createUniformSetters(gl, program),
+        attribSetters: createAttributeSetters(gl, program),
+    };
+}
+
 /**
  * Resizes the canvas setting 'width' and 'height' fields and using 'clientWidth' and 'clientHeight' to get the actual canvas size.
  *
  * @param {boolean} maxResolution makes shader work more expensive.
  * @memberOf module:webgl-utils
  */
-export function resizeCanvasToDisplaySize(canvas, maxResolution) {
-    // handels HD-DPI and RETINA displays
+export function resizeCanvasToDisplaySize(canvas) {
+    // handles HD-DPI and RETINA displays
     // https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html (blue part)
-    const realToCSSPixels = maxResolution ? window.devicePixelRatio : 1;
+    const displayWidth = Math.floor(
+        canvas.clientWidth * window.devicePixelRatio
+    );
+    const displayHeight = Math.floor(
+        canvas.clientHeight * window.devicePixelRatio
+    );
 
-    const displayWidth = Math.floor(canvas.clientWidth * realToCSSPixels);
-    const displayHeight = Math.floor(canvas.clientHeight * realToCSSPixels);
-
-    if (canvas.width != displayWidth || canvas.height != displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-    }
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
 }
 
 /**
@@ -942,7 +953,7 @@ function createAugmentedTypedArray(numComponents, numElements, opt_type) {
  * @param {TypedArray} typedArray
  * @param {number} numComponents
  */
-export function augmentTypedArray(typedArray, numComponents) {
+function augmentTypedArray(typedArray, numComponents) {
     // It just keeps a 'cursor' and allows use to `push` values into the array so
     // we don't have to manually compute offsets
     let cursor = 0;

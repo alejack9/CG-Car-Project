@@ -1,6 +1,8 @@
 {
     "objName": "motor.new.obj",
     "mtlName": "motor.new.mtl",
+    "firstPersonCameraPosition": [3.8, 0, 0],
+    "firstPersonCameraTarget":[ 15, 180, 97.5 ],
     "chassis": {
         "name": "chassis_Cube.001",
         "transforms": {

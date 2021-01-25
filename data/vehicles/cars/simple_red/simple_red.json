@@ -1,7 +1,8 @@
 {
     "objName": "simple_red1.obj",
     "mtlName": "simple_red1.mtl",
-    "texturesCount": 1,
+    "firstPersonCameraPosition": [ 3, 0.46875, 19.7895 ],
+    "firstPersonCameraTarget":[ 15, 180, 103.85 ],
     "chassis": {
         "name": "chassis_11675_Car_v1_L3",
         "transforms": {}

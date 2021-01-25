@@ -1,34 +1,36 @@
 export function toCartesian(d, theta, phi) {
-	const sinPhi = Math.sin(phi);
-	return [
-		d * sinPhi * Math.sin(theta),
-		d * Math.cos(phi),
-		d * sinPhi * Math.cos(theta),
-	];
+    const sinPhi = Math.sin(phi);
+    return [
+        d * sinPhi * Math.cos(theta),
+        d * Math.cos(phi),
+        d * sinPhi * Math.sin(theta),
+    ];
 }
 
-export function toSpherical(x, y, z) {
-	const d = Math.hypot(x, y, z);
-	// prettier-ignore
-	return [
+export function toSpherical(x, z, y) {
+    const d = Math.hypot(x, y, z);
+    // prettier-ignore
+    return [
 	    d,
-		Math.atan(z / y),
-	    Math.acos(x / d),
+		Math.atan(y / x),
+		Math.acos(z / d)
 	]
 }
 
 const PIx2 = Math.PI * 2;
 
 export function normalizeTheta(theta) {
-	return theta % PIx2;
+    return theta % PIx2;
 }
 
 export function normalizePhi(phi) {
-	if (phi <= 10 ** -3) phi = 10 ** -3;
-	phi = Math.abs(phi % PIx2);
-	return phi > Math.PI ? PIx2 - phi : phi;
+    return Math.max(phi, 10 ** -3);
 }
 
 export function degToRad(d) {
-	return (d * Math.PI) / 180;
+    return (d * Math.PI) / 180;
+}
+
+export function radToDeg(r) {
+    return (r * 180) / Math.PI;
 }

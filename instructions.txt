@@ -1,0 +1,17 @@
+Car:
+WASD ⇨ Drive
+SPACE ⇨ Handbrake
+Q/E ⇨ Previous/Next Vehicle
+1-8 ⇨ Jump to Vehicle
+
+Camera:
+0 ⇨ Lock Camera
+R ⇨ Reset Camera to Default
+C ⇨ Switch First/Third Person View 
+Third Person:
+  Mouse Drag ⇨ Move Camera Around
+  Mouse Wheel ⇨ Go Closer/Far Away
+First Person:
+  Mouse Drag ⇨ Move Target Around
+
+H ⇨ Hide/Show this Message

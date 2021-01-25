@@ -1,4 +1,5 @@
 .vscode
+data.old
 !data/**/*.json
 data/**/*.obj
 data/**/*.mtl

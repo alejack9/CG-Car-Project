@@ -1,3 +1,12 @@
+* {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
 body {
     margin: 0;
     position: fixed;
@@ -9,21 +18,65 @@ canvas {
     width: 100vw;
     height: 100vh;
     display: block;
-}
-
-#abs {
-    position: fixed;
-    z-index: 9;
-    top: 10px;
-    left: 10px;
-}
-#abs * {
-    z-index: 9;
-}
-
-#text {
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 8;
+}
+
+#gl-surface {
+    z-index: 1;
+}
+
+#text {
+    z-index: 2;
+}
+
+.abs {
+    position: fixed;
+}
+.abs,
+.abs * {
+    z-index: 3;
+}
+
+.top {
+    top: 0.5rem;
+}
+
+.bottom {
+    bottom: 0.5rem;
+}
+
+.right {
+    right: 0.5rem;
+}
+
+.center {
+    width: 100vw;
+    margin: 0 auto;
+}
+
+label,
+span {
+    -webkit-text-stroke: 1px white;
+}
+
+.flex-row {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+}
+
+.drive {
+    width: 25%;
+    cursor: default;
+    font-size: 48pt;
+    -webkit-text-stroke: 2px black;
+    color: white;
+    text-align: center;
+}
+
+.abs.top.right,
+.abs.top.right * {
+    z-index: 4;
 }

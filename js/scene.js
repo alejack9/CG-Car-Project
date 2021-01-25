@@ -1,311 +1,280 @@
 import { Camera } from "./camera.js";
-import * as webglUtils from "./libs/webgl-utils.js";
-import { degToRad, toCartesian } from "./utils/spherical-coordinates.js";
-import * as m4 from "./libs/m4.js";
-import { AddEvent, RemoveEvent } from "./utils/input.js";
+import {
+    createProgramInfo,
+    resizeCanvasToDisplaySize,
+    setUniforms,
+} from "./libs/webgl-utils.js";
+import { degToRad } from "./utils/spherical-coordinates.js";
+import { InputManager } from "./input-manager.js";
 import { getObjs, getVehicle } from "./objs-factory.js";
-import { TextManager } from "./utils/text-manager.js";
+import { Skybox } from "./skybox.js";
+import { TextManager } from "./text-manager.js";
 
 const FRAMES_PER_SECOND = 60;
 const FRAME_MIN_TIME =
     ((1000 / 60) * (60 / FRAMES_PER_SECOND) - (1000 / 60) * 0.5) * 0.001;
 
 export class Scene {
-    /**
-     *
-     * @param {WebGLRenderingContext} gl
-     * @param {TextManager} textManager
-     */
-    constructor(gl, textManager) {
+    static async load(gl, mobile) {
         this.gl = gl;
-        webglUtils.resizeCanvasToDisplaySize(textManager.ctx.canvas);
-        this.textManager = textManager;
-    }
+        resizeCanvasToDisplaySize(TextManager.ctx.canvas);
 
-    async load() {
-        this.textManager.loading = true;
-        this.textManager.render();
+        InputManager.resize();
+        TextManager.loading = true;
+        TextManager.render();
 
-        this.cars = JSON.parse(
-            await (await fetch("/data/vehicles/vehicles.json")).text()
+        this.vehiclesRefs = JSON.parse(
+            await (
+                await fetch(
+                    mobile
+                        ? "data/vehicles/vehicles.mobile.json"
+                        : "data/vehicles/vehicles.json"
+                )
+            ).text()
         ).paths;
-        this.currentCar = 0;
+        this.currentVehicle = 0;
+        this.vehicles = [];
 
-        this.program = await webglUtils.createProgramFromFiles(this.gl, [
-            "./shaders/phong.vs.glsl",
-            "./shaders/phong.fs.glsl",
+        this.programInfo = await createProgramInfo(this.gl, [
+            "shaders/phong.vs.glsl",
+            "shaders/phong.fs.glsl",
         ]);
 
-        this.backgroundColor = [0.28, 0.28, 0.28];
+        await Skybox.load();
 
-        this.setters = [
-            webglUtils.createAttributeSetters(this.gl, this.program),
-            webglUtils.createUniformSetters(this.gl, this.program),
+        this.lightPosition = [
+            parseFloat(document.getElementById("x")?.value ?? 0),
+            parseFloat(document.getElementById("y")?.value ?? 6),
+            parseFloat(document.getElementById("z")?.value ?? 0),
         ];
 
-        this.L = [
-            parseFloat(document.getElementById("x")?.value ?? -1),
-            parseFloat(document.getElementById("y")?.value ?? 3),
-            parseFloat(document.getElementById("z")?.value ?? 5),
-        ];
+        this.polygons = await getObjs(this.gl, this.programInfo);
+        this.coin = this.polygons.coin;
+        this.polygons = this.polygons.polygons;
 
-        this.polygons = await getObjs(this.gl, this.setters);
+        const cameraSpherical = [25, degToRad(0), degToRad(65)];
+        Camera.load(cameraSpherical, degToRad(45));
+        Camera.updatePerspectiveMatrix(
+            this.gl.canvas.clientWidth,
+            this.gl.canvas.clientHeight
+        );
 
         await this._load();
     }
 
-    async _load() {
-        this.textManager.reset();
-        console.log(this.currentCar);
+    static async _load() {
+        InputManager.disableinput(true);
 
-        this.disableinput(true);
-        this.textManager.loading = true;
+        this.coins = { current: 0, target: 8 };
 
-        let doneTextures = 0;
-        const cb = (texturesCount) => {
-            if (texturesCount)
-                this.textManager.texturesLoadedMessage = `Loading Texture... ${++doneTextures} / ${texturesCount}`;
-            if (!texturesCount || doneTextures === texturesCount) {
-                this.textManager.done = true;
-                this.disableinput(false);
+        TextManager.vehicleNum = this.currentVehicle + 1;
+        TextManager.vehicles = this.vehiclesRefs.length;
+
+        TextManager.coins = this.coins;
+
+        if (this.hasWon) TextManager.show = true;
+        this.hasWon = false;
+        // weighted average of loading steps
+        const percentagePerStep = 25; // %
+        const textureLoadingPercentage = 50; // %
+        const textureCb = (processedTextures, texturesCount) => {
+            if (texturesCount) {
+                TextManager.percentage +=
+                    Math.round(
+                        (1 / texturesCount) * textureLoadingPercentage * 100
+                    ) / 100;
+                TextManager.action = `Loading Texture: ${processedTextures} / ${texturesCount}`;
+            }
+            if (!texturesCount || processedTextures === texturesCount) {
+                TextManager.reset();
+                TextManager.percentage = 100;
+                TextManager.showTime = true;
+                InputManager.disableinput(false);
             }
         };
-        this.car = await getVehicle(
-            this.gl,
-            this.setters,
-            this.cars[this.currentCar],
-            cb
-        );
 
-        this.resetCamera();
+        const objCb = () => {
+            TextManager.percentage += percentagePerStep;
+            TextManager.action = "Loaded OBJ";
+        };
+        const mtlCb = () => {
+            TextManager.percentage += percentagePerStep;
+            TextManager.action = "Loaded MTL";
+        };
+        if (!this.vehicles[this.currentVehicle]) {
+            TextManager.reset();
+            TextManager.showTime = false;
+            TextManager.action = "Loading...";
+            this.vehicle = await getVehicle(
+                this.gl,
+                this.programInfo,
+                this.vehiclesRefs[this.currentVehicle],
+                this.loadTextures,
+                this.loadNormals,
+                objCb,
+                mtlCb,
+                textureCb
+            );
+            this.vehicles[this.currentVehicle] = this.vehicle;
+        } else {
+            if (
+                this.vehicles[this.currentVehicle].loadedNormals !==
+                    this.loadNormals ||
+                this.vehicles[this.currentVehicle].loadedTextures !==
+                    this.loadTextures
+            ) {
+                this.vehicles[this.currentVehicle] = undefined;
+                return this._load();
+            }
+            this.vehicle = this.vehicles[this.currentVehicle];
+            this.vehicle.reload();
+            textureCb();
+        }
+
+        if (!this.loadTextures && !this.loadNormals) textureCb();
+
+        if (this.isFirstPerson) this.resetFirstPerson();
+        else this.resetCamera();
+
+        this.coin.setPosition(-20, 0);
+
+        // force camera refresh to focus on vehicle
+        Camera.translation = this.vehicle.chassis[0].translation;
+        Camera.rotation = this.vehicle.chassis[0].rotation[1];
+        Camera.cameraMatrixChanged = true;
     }
 
-    begin(maxPixelRatio = false) {
+    static begin() {
         console.log("Beginning scene");
 
-        this.pixelRatio = maxPixelRatio ? window.devicePixelRatio : 1;
-
-        this._addEvents();
-
-        let then = 0;
         const loop = (now) => {
             now *= 0.001;
-            this.delta = now - then;
-            if (this.delta < FRAME_MIN_TIME) {
-                this.update();
-                this.nextFrameHandle = requestAnimationFrame(loop);
-                return;
-            }
+
+            const delta = now - then;
+
+            if (delta < FRAME_MIN_TIME) return requestAnimationFrame(loop);
+
             then = now;
-            document.title = (1 / this.delta).toFixed(2);
+            document.title = Math.round(1 / delta);
+            this.update(delta);
 
-            this.update();
             this.render();
-            this.nextFrameHandle = requestAnimationFrame(loop);
+
+            requestAnimationFrame(loop);
         };
-        this._resize();
 
-        this.nextFrameHandle = requestAnimationFrame(loop);
+        let then = 0;
+        requestAnimationFrame(loop);
     }
 
-    update() {
-        if (this.car.moving) this.camera.updateCamera(this.delta);
-        if (this.cameraInc[0])
-            this.camera.increaseTarget(0, this.cameraInc[0] * 4 * this.delta);
-        this.camera.translation = this.car.chassis[0].translation;
-        this.camera.rotation = this.car.chassis[0].rotation[1];
-        this.car.doStep(this.delta);
+    static update(delta) {
+        if (this.vehicle.moving || this.updateCamera)
+            Camera.updateCameraPosition(delta);
+        if (this.vehicle.keyPressed) Camera.updateTargetPosition(delta);
+
+        // vehicle moves
+        this.vehicle.doStep(delta, FRAMES_PER_SECOND);
+
+        // 100 = floor dimension
+        if (Math.abs(this.vehicle.px) >= 95 || Math.abs(this.vehicle.pz) >= 95)
+            if (this.hasWon)
+                this.vehicle.px = this.vehicle.py = this.vehicle.pz = this.vehicle.facing = 0;
+            else {
+                this.coins.current = 0;
+                this.vehicle.reload();
+            }
+
+        // camera follows vehicle
+        Camera.translation = this.vehicle.chassis[0].translation;
+        Camera.rotation = this.vehicle.chassis[0].rotation[1];
+
+        // 4.5 = coin's dimension
+        if (
+            Math.abs(this.vehicle.px - this.coin.position[0]) <= 4.5 &&
+            Math.abs(this.vehicle.pz - this.coin.position[1]) <= 4.5
+        ) {
+            this.coins.current++;
+            if (this.coins.current === this.coins.target) {
+                this.hasWon = true;
+                this.win();
+                TextManager.win();
+            }
+            this.coin.randomPosition();
+        }
+        this.coin.rotate(delta);
+        TextManager.time += delta;
     }
 
-    render() {
-        this.gl.clearColor(...this.backgroundColor, 1);
+    static render() {
+        this.gl.clearColor(0, 0, 0, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-        this.textManager.render();
+        TextManager.render();
 
-        this.gl.useProgram(this.program);
+        this.gl.useProgram(this.programInfo.program);
 
-        const sharedUniform = {
-            L: m4.normalize(this.L),
-            u_viewWorldPosition: this.camera.cartesianPosition,
-            u_perspection: this.perspectiveMatrix,
-            u_view: this.camera.viewMatrix,
-        };
-        webglUtils.setUniforms(this.setters[1], sharedUniform);
+        setUniforms(this.programInfo, {
+            lightPosition: this.lightPosition,
+            Ia: Skybox.ambient,
+            u_viewWorldPosition: Camera.cartesianPosition,
+            u_perspective: Camera.perspectiveMatrix,
+            u_view: Camera.viewMatrix,
+        });
         this.polygons.forEach((p) => p.draw());
-        this.car.draw();
+        this.vehicle.draw();
+        Skybox.render();
     }
 
-    disableinput(bool) {
-        if (!bool) this._addEvents();
-        else {
-            [
-                "mousedown",
-                "mousemove",
-                "mouseup",
-                "wheel",
-                "touchstart",
-                "touchmove",
-                "touchend",
-                "resize",
-                "keydown",
-                "keyup",
-            ].forEach((ev) => RemoveEvent(window, ev, this[`_${ev}`]));
-            RemoveEvent(window, "touchend", this._mouseup);
-        }
+    static resetCamera() {
+        const cameraSpherical = [25, degToRad(0), degToRad(65)];
+        Camera.startPosition = cameraSpherical;
+        this.updateCamera = true;
     }
 
-    resetCamera() {
-        const cameraTarget = [0, 0, 0];
-        const cameraSherical = [20, degToRad(25), degToRad(90)];
-        this.camera = new Camera(toCartesian(...cameraSherical), cameraTarget);
-        this.fieldOfViewRadians = degToRad(45);
-        this.cameraInc = [0, 0];
+    static setFirstPerson() {
+        this.previousCameraPosition = [...Camera.startPosition];
+        this.resetFirstPerson();
     }
 
-    _addEvents() {
+    static resetFirstPerson() {
+        Camera.firstPerson = true;
         [
-            "mousedown",
-            "mousemove",
-            "mouseup",
-            "wheel",
-            "touchstart",
-            "touchmove",
-            "resize",
-            "keydown",
-            "keyup",
-        ].forEach((ev) => AddEvent(window, ev, this[`_${ev}`]));
-        AddEvent(window, "touchend", this._mouseup);
+            Camera.targetD,
+            Camera.targetTheta,
+            Camera.targetPhi,
+        ] = this.vehicle.firstPersonCameraTarget;
 
-        if (document.getElementById("x"))
-            document.getElementById("x").oninput = (_) => {
-                document.getElementById(
-                    "xl"
-                ).innerHTML = document.getElementById("x").value;
-                this.L[0] = parseFloat(document.getElementById("x").value);
-            };
-        if (document.getElementById("y"))
-            document.getElementById("y").oninput = (_) => {
-                document.getElementById(
-                    "yl"
-                ).innerHTML = document.getElementById("y").value;
-                this.L[1] = parseFloat(document.getElementById("y").value);
-            };
-        if (document.getElementById("z"))
-            document.getElementById("z").oninput = (_) => {
-                document.getElementById(
-                    "zl"
-                ).innerHTML = document.getElementById("z").value;
-                this.L[2] = parseFloat(document.getElementById("z").value);
-            };
+        [
+            Camera.d,
+            Camera.theta,
+            Camera.phi,
+        ] = this.vehicle.firstPersonCameraPosition;
+        Camera.lockCamera();
     }
 
-    _touchstart = (event) => {
-        if (event.touches.length === 1) {
-            [event.clientX, event.clientY] = [
-                event.touches[0].clientX,
-                event.touches[0].clientY,
-            ];
-            return this._mousedown(event);
-        }
-        this.dist = Math.hypot(
-            event.touches[1].pageX - event.touches[0].pageX,
-            event.touches[1].pageY - event.touches[0].pageY
-        );
-    };
-    _mousedown = (event) => {
-        this.clicked = true;
-        this.start = [event.clientX, event.clientY];
-        this.updateCamera = false;
-    };
-    _touchmove = (event) => {
-        if (event.touches.length === 1) {
-            [event.clientX, event.clientY] = [
-                event.touches[0].clientX,
-                event.touches[0].clientY,
-            ];
-            return this._mousemove(event);
-        }
-        const actual = Math.hypot(
-            event.touches[1].pageX - event.touches[0].pageX,
-            event.touches[1].pageY - event.touches[0].pageY
-        );
-        if (this.dist > actual) event.deltaY = 1;
-        else event.deltaY = -1;
-        this._wheel(event, 0.1);
-        this.dist = actual;
-    };
-    _mousemove = (event) => {
-        if (!this.clicked) return;
-        const actual = [event.clientX, event.clientY];
-        const deltas = [actual[0] - this.start[0], actual[1] - this.start[1]];
-        this.camera.theta -= degToRad(
-            (180 * deltas[0]) / (this.gl.canvas.width * this.pixelRatio)
-        );
-        this.camera.phi -= degToRad(
-            (90 * deltas[1]) / (this.gl.canvas.height * this.pixelRatio)
-        );
-        this.start = actual;
-    };
-    _mouseup = () => {
-        this.clicked = false;
-    };
-    _wheel = (event, step = 0.5) => {
-        this.camera.d += (event.deltaY > 0 ? step : -step) * this.pixelRatio;
-        this.updateCamera = false;
-    };
-    _keydown = (event) => {
-        if (event.key.toLowerCase() === "w") this.car.key[0] = true;
-        if (event.key.toLowerCase() === "a") this.car.key[1] = true;
-        if (event.key.toLowerCase() === "s") this.car.key[2] = true;
-        if (event.key.toLowerCase() === "d") this.car.key[3] = true;
-        if (event.key.toLowerCase() === " ") this.car.key[5] = true;
-        if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = -1;
-        if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 1;
-    };
-    _keyup = (event) => {
-        if (event.key.toLowerCase() === "w") this.car.key[0] = false;
-        if (event.key.toLowerCase() === "a") this.car.key[1] = false;
-        if (event.key.toLowerCase() === "s") this.car.key[2] = false;
-        if (event.key.toLowerCase() === "d") this.car.key[3] = false;
-        if (event.key.toLowerCase() === " ") this.car.key[5] = false;
-        if (event.key.toLowerCase() === "arrowup") this.cameraInc[0] = 0;
-        if (event.key.toLowerCase() === "arrowdown") this.cameraInc[0] = 0;
-        if (event.key.toLowerCase() === "0") this.camera.lockCamera();
-        if (event.key.toLowerCase() === "q") {
-            this.currentCar =
-                (this.currentCar === 0 ? this.cars.length : this.currentCar) -
-                1;
-            this._load();
-        }
-        if (event.key.toLowerCase() === "e") {
-            this.currentCar = (this.currentCar + 1) % this.cars.length;
-            this._load();
-        }
-        if (event.key === "r") this.resetCamera();
-        if (event.key === "R") this.camera.target = [0, 0, 0];
-        const n = parseInt(event.key);
-        if (n >= 1 && n <= 8 && n - 1 !== this.currentCar) {
-            this.currentCar = n - 1;
-            this._load();
-        }
-    };
-    _resize = () => {
-        // even if the official web fundamentals guide discourage this implementation (moving this code to the render funciton),
-        // in our case this is a major performance improvement without any bad side effects.
-        webglUtils.resizeCanvasToDisplaySize(
-            this.gl.canvas,
-            this.pixelRatio !== 1
-        );
-        webglUtils.resizeCanvasToDisplaySize(this.textManager.ctx.canvas);
+    static setThirdPerson() {
+        Camera.firstPerson = false;
+        Camera.targetD = Camera.targetTheta = 0;
+        Camera.targetPhi = degToRad(90);
 
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        [Camera.d, Camera.theta, Camera.phi] = this.previousCameraPosition;
+        this.previousCameraPosition = undefined;
+    }
 
-        this.perspectiveMatrix = m4.perspective(
-            this.fieldOfViewRadians,
-            this.gl.canvas.clientWidth / this.gl.canvas.clientHeight,
-            0.1,
-            500
-        );
-    };
+    static get isFirstPerson() {
+        return Boolean(this.previousCameraPosition);
+    }
+
+    static win() {
+        InputManager.disableinput(true);
+        this.vehicle.setKey(0, false);
+        this.vehicle.setKey(1, false);
+        this.vehicle.setKey(2, false);
+        this.vehicle.setKey(3, false);
+        this.vehicle.setKey(4, false);
+        window.onkeyup = (event) =>
+            event.key.toLowerCase() === "f" && this._load();
+        window.ontouchstart = () => (InputManager.clicked = true);
+        window.ontouchend = () => InputManager.clicked && this._load();
+    }
 }
