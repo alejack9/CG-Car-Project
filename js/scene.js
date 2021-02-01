@@ -27,8 +27,8 @@ export class Scene {
             await (
                 await fetch(
                     mobile
-                        ? "data/vehicles/vehicles.mobile.json"
-                        : "data/vehicles/vehicles.json"
+                        ? "data/sample/vehicles/vehicles.mobile.json"
+                        : "data/sample/vehicles/vehicles.json"
                 )
             ).text()
         ).paths;

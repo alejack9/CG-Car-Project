@@ -150,10 +150,10 @@ export async function getVehicle(
 }
 
 export async function getObjs(gl, programInfo) {
-    const objUrlHref = getUrlHref("data/objs/ground.obj");
-    const mtlUrlHref = getUrlHref("data/objs/ground.mtl");
-    const objUrlHref1 = getUrlHref("data/objs/coin/coin.new1.obj");
-    const mtlUrlHref1 = getUrlHref("data/objs/coin/coin.new1.mtl");
+    const objUrlHref = getUrlHref("data/sample/objs/ground.obj");
+    const mtlUrlHref = getUrlHref("data/sample/objs/ground.mtl");
+    const objUrlHref1 = getUrlHref("data/sample/objs/coin/coin.new1.obj");
+    const mtlUrlHref1 = getUrlHref("data/sample/objs/coin/coin.new1.mtl");
 
     const groundGroups = await ObjLoader.parse(
         gl,

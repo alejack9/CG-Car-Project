@@ -1,8 +1,4 @@
 .vscode
-data.old
-!data/**/*.json
-data/**/*.obj
-data/**/*.mtl
-data/**/*.png
-data/**/*.jpg
-data/**/*.jpeg
+
+node_modules
+package-lock.json

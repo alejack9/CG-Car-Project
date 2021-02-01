@@ -33,7 +33,7 @@ export class Skybox {
             },
         });
 
-        const skyboxUrl = "data/skybox/skybox.json";
+        const skyboxUrl = "data/sample/skybox/skybox.json";
         const skyboxImgs = JSON.parse(await (await fetch(skyboxUrl)).text());
         const baseHref = getUrl(skyboxUrl);
 

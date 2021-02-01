@@ -1,9 +1,0 @@
-{
-    "back": "space/back.png",
-    "top": "space/top.png",
-    "right": "space/right.png",
-    "front": "space/front.png",
-    "bottom": "space/bottom.png",
-    "left": "space/left.png",
-    "ambient": [0, 0.02745098, 0.029019607]
-}
