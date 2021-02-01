@@ -1,0 +1,6 @@
+{
+    "paths": [
+        "data/sample/vehicles/bikes/sample/sample.json",
+        "data/sample/vehicles/cars/sample/sample.json"
+    ]
+}

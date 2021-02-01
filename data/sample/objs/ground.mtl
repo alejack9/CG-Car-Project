@@ -1,0 +1,14 @@
+# Blender MTL File: 'ROAD_asfalt_apg.blend'
+# Material Count: 1
+
+newmtl road_3.5X9.0_1_
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+map_Kd ground.jpg
+map_Bump bump.jpg
+illum 2

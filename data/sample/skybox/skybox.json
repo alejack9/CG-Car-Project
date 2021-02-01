@@ -1,0 +1,9 @@
+{
+    "back": "sample/back.jpg",
+    "top": "sample/top.jpg",
+    "right": "sample/right.jpg",
+    "front": "sample/front.jpg",
+    "bottom": "sample/bottom.jpg",
+    "left": "sample/left.jpg",
+    "ambient": [0, 0, 0]
+}

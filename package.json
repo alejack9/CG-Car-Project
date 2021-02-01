@@ -1,0 +1,23 @@
+{
+  "name": "car-project",
+  "version": "1.0.0",
+  "description": "A simple car game made in WebGL for computer graphics course",
+  "main": "app.js",
+  "scripts": {
+    "start": "http-server -o index.htm",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alejack9/CG-Car-Project.git"
+  },
+  "author": "Alessandro Giacchè",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/alejack9/CG-Car-Project/issues"
+  },
+  "homepage": "https://github.com/alejack9/CG-Car-Project#readme",
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}

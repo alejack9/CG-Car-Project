@@ -1,0 +1,29 @@
+{
+    "objName": "sample1.obj",
+    "mtlName": "sample1.mtl",
+    "firstPersonCameraPosition": [4.25, 0, 0],
+    "firstPersonCameraTarget":[ 15, 180, 101 ],
+    "chassis": {
+        "name": "c_Cube",
+        "transforms": {
+        }
+    },
+    "front_wheel_dx": {
+        "name": "a_Cylinder.001",
+        "transforms": {
+            "translation": [-1.36853, 0.675559, 0]
+        }
+    },
+    "back_wheel_dx": {
+        "name": "b_Cylinder",
+        "transforms": {
+            "translation": [1.22961, 0.675559, 0]
+        }
+    },
+    "sus_edge_sx": {
+        "name": "d_Cube.001",
+        "transforms": {
+            "translation": [-1.3685, 1.9682, 0]
+        }
+    }
+}
