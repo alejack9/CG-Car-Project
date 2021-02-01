@@ -6,6 +6,7 @@
     "chassis": {
         "name": "Cube_Cube.002",
         "transforms": {
+            "scale": [2.0, 2.0, 2.0]
         }
     },
     "front_wheel_sx": {
