@@ -67,12 +67,8 @@ export class Vehicle {
         this.sterzo *= this.velRitornoSterzo; // ritorno a volante fermo
 
         if (this._keys[4]) {
-            // FIXME should be
-            /*
-             * vxm = 0;
-             * this.sterzo = 0; */
-            if (this.vx < 0) vxm -= this.vx;
-            else if (this.vx > 0) vxm += this.vx;
+             vxm = 0;
+             this.sterzo = 0;
         } else {
             vxm -= this._keys[0] * this.accMax; // accelerazione in avanti
             vxm += this._keys[2] * this.accMax; // accelerazione indietro
