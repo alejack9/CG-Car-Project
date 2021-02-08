@@ -16,9 +16,10 @@ export class TextManager {
         }
 
         TextManager.ctx = ctx;
+        TextManager.instructionsTemplate = instructions;
         TextManager.instructionsText = new Textbox(
             ctx,
-            instructions,
+            TextManager.instructionsTemplate.replace("${vehicles}", 0),
             fixed,
             fixed,
             fontSize
@@ -62,6 +63,10 @@ export class TextManager {
             0,
             TextManager.ctx.canvas.width,
             TextManager.ctx.canvas.height
+        );
+        TextManager.instructionsText.message = TextManager.instructionsTemplate.replace(
+            "${vehicles}",
+            TextManager.vehicles
         );
         TextManager.instructionsText.draw();
         TextManager.infoText.message =

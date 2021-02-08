@@ -2,7 +2,7 @@ Car:
 WASD ⇨ Drive
 SPACE ⇨ Handbrake
 Q/E ⇨ Previous/Next Vehicle
-1-8 ⇨ Jump to Vehicle
+1-${vehicles} ⇨ Jump to Vehicle
 
 Camera:
 0 ⇨ Lock Camera
