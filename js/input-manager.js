@@ -271,7 +271,11 @@ export class InputManager {
             TextManager.show = !TextManager.show;
 
         const n = parseInt(event.key);
-        if (n >= 1 && n <= 8 && n - 1 !== Scene.currentVehicle) {
+        if (
+            n >= 1 &&
+            n <= Scene.vehicles.length + 1 &&
+            n - 1 !== Scene.currentVehicle
+        ) {
             Scene.currentVehicle = n - 1;
             Scene._load();
         }
